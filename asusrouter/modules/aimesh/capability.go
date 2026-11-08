@@ -21,7 +21,7 @@ var (
 // Unmapped bits we already know about but cannot decode yet. We keep the
 // raw value, but do not warn about these - they are not new data
 var acknowledgedUnknown = map[int]map[int]struct{}{
-	4: {6: {}, 11: {}, 13: {}, 15: {}, 19: {}, 23: {}, 24: {}, 25: {}},
+	4: {19: {}},
 }
 
 type capBit struct {
@@ -35,6 +35,9 @@ type capIndex struct {
 }
 
 // Capability index -> {bit -> feature} (in Python dict order)
+//
+// Index 4 (rc_support) follows the RC_SUPPORT bits of the firmware's
+// cfg_mnt/cfg_capability.h; the comments give the firmware macro names
 var capabilityMap = []capIndex{
 	{1, []capBit{
 		{0, ARAiMeshFeatureCentralLed},
@@ -48,19 +51,31 @@ var capabilityMap = []capIndex{
 	{2, []capBit{{0, ARAiMeshFeatureManualReboot}}},
 	{3, []capBit{{0, ARAiMeshFeaturePreferableBackhaul}, {1, ARAiMeshFeaturePreferNodeApply}}},
 	{4, []capBit{
-		{0, ARAiMeshFeatureUsb},
+		{0, ARAiMeshFeatureUsb}, // USBX
 		{1, ARAiMeshFeatureGuestNetwork},
 		{2, ARAiMeshFeatureWpa3},
 		{3, ARAiMeshFeatureVifOnboarding},
-		{4, ARAiMeshFeatureSchedV2},
+		{4, ARAiMeshFeatureSchedV2}, // WL_SCHED_V2
 		{5, ARAiMeshFeatureWifiRadio},
+		{6, ARAiMeshFeatureSchedV3}, // WL_SCHED_V3
+		{7, ARAiMeshFeatureRevertFw},
 		{8, ARAiMeshFeatureSwitchctrl},
 		{9, ARAiMeshFeaturePortStatus},
 		{10, ARAiMeshFeatureLocalAccess},
-		{16, ARAiMeshFeatureWpa3Enterprise},
-		{20, ARAiMeshFeatureMloBh},
-		{21, ARAiMeshFeatureMloFh},
+		{11, ARAiMeshFeatureCableDiag},
+		{12, ARAiMeshFeatureNoFwManual},
+		{13, ARAiMeshFeatureUpdate},
+		{14, ARAiMeshFeatureRollbackFw},
+		{15, ARAiMeshFeatureSdn},
+		{16, ARAiMeshFeatureWpa3Enterprise},      // WPA3_ENT
+		{17, ARAiMeshFeatureCentralOptimization}, // CENTRAL_OPTMZ
+		{20, ARAiMeshFeatureMloBh},               // MLO
+		{21, ARAiMeshFeatureMloFh},               // MLO_RE_BH_FH
 		{22, ARAiMeshFeatureSmartHomeMasterUi},
+		{23, ARAiMeshFeatureWifi7}, // WIFI7_SUPPORT
+		{24, ARAiMeshFeatureMultilanMwl},
+		{25, ARAiMeshFeatureAfc},
+		{27, ARAiMeshFeatureOnboarding5g},
 	}},
 	{5, []capBit{{0, ARAiMeshFeatureLacp}}},
 	{6, []capBit{{0, ARAiMeshFeatureGn2g1}, {1, ARAiMeshFeatureGn2g2}, {2, ARAiMeshFeatureGn2g3}}},

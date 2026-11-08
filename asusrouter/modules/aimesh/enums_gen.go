@@ -183,16 +183,28 @@ const (
 	ARAiMeshFeatureManualReboot          ARAiMeshFeature = "manual_reboot"
 	ARAiMeshFeatureManualResetDefault    ARAiMeshFeature = "manual_reset_default"
 	ARAiMeshFeatureManualStaBinding      ARAiMeshFeature = "manual_sta_binding"
+	ARAiMeshFeatureAfc                   ARAiMeshFeature = "afc"
+	ARAiMeshFeatureCableDiag             ARAiMeshFeature = "cable_diag"
+	ARAiMeshFeatureCentralOptimization   ARAiMeshFeature = "central_optimization"
 	ARAiMeshFeatureGuestNetwork          ARAiMeshFeature = "guest_network"
 	ARAiMeshFeatureLocalAccess           ARAiMeshFeature = "local_access"
 	ARAiMeshFeatureMloBh                 ARAiMeshFeature = "mlo_bh"
 	ARAiMeshFeatureMloFh                 ARAiMeshFeature = "mlo_fh"
+	ARAiMeshFeatureMultilanMwl           ARAiMeshFeature = "multilan_mwl"
+	ARAiMeshFeatureNoFwManual            ARAiMeshFeature = "no_fw_manual"
+	ARAiMeshFeatureOnboarding5g          ARAiMeshFeature = "onboarding_5g"
 	ARAiMeshFeaturePortStatus            ARAiMeshFeature = "port_status"
+	ARAiMeshFeatureRevertFw              ARAiMeshFeature = "revert_fw"
+	ARAiMeshFeatureRollbackFw            ARAiMeshFeature = "rollback_fw"
 	ARAiMeshFeatureSchedV2               ARAiMeshFeature = "sched_v2"
+	ARAiMeshFeatureSchedV3               ARAiMeshFeature = "sched_v3"
+	ARAiMeshFeatureSdn                   ARAiMeshFeature = "sdn"
 	ARAiMeshFeatureSmartHomeMasterUi     ARAiMeshFeature = "smart_home_master_ui"
 	ARAiMeshFeatureSwitchctrl            ARAiMeshFeature = "switchctrl"
+	ARAiMeshFeatureUpdate                ARAiMeshFeature = "update"
 	ARAiMeshFeatureUsb                   ARAiMeshFeature = "usb"
 	ARAiMeshFeatureVifOnboarding         ARAiMeshFeature = "vif_onboarding"
+	ARAiMeshFeatureWifi7                 ARAiMeshFeature = "wifi7"
 	ARAiMeshFeatureWifiRadio             ARAiMeshFeature = "wifi_radio"
 	ARAiMeshFeatureWpa3                  ARAiMeshFeature = "wpa3"
 	ARAiMeshFeatureWpa3Enterprise        ARAiMeshFeature = "wpa3_enterprise"
@@ -241,16 +253,28 @@ var ARAiMeshFeatureMembers = []ARAiMeshFeature{
 	ARAiMeshFeatureManualReboot,
 	ARAiMeshFeatureManualResetDefault,
 	ARAiMeshFeatureManualStaBinding,
+	ARAiMeshFeatureAfc,
+	ARAiMeshFeatureCableDiag,
+	ARAiMeshFeatureCentralOptimization,
 	ARAiMeshFeatureGuestNetwork,
 	ARAiMeshFeatureLocalAccess,
 	ARAiMeshFeatureMloBh,
 	ARAiMeshFeatureMloFh,
+	ARAiMeshFeatureMultilanMwl,
+	ARAiMeshFeatureNoFwManual,
+	ARAiMeshFeatureOnboarding5g,
 	ARAiMeshFeaturePortStatus,
+	ARAiMeshFeatureRevertFw,
+	ARAiMeshFeatureRollbackFw,
 	ARAiMeshFeatureSchedV2,
+	ARAiMeshFeatureSchedV3,
+	ARAiMeshFeatureSdn,
 	ARAiMeshFeatureSmartHomeMasterUi,
 	ARAiMeshFeatureSwitchctrl,
+	ARAiMeshFeatureUpdate,
 	ARAiMeshFeatureUsb,
 	ARAiMeshFeatureVifOnboarding,
+	ARAiMeshFeatureWifi7,
 	ARAiMeshFeatureWifiRadio,
 	ARAiMeshFeatureWpa3,
 	ARAiMeshFeatureWpa3Enterprise,
@@ -298,16 +322,28 @@ var aRAiMeshFeatureByName = map[string]ARAiMeshFeature{
 	"MANUAL_REBOOT":            ARAiMeshFeatureManualReboot,
 	"MANUAL_RESET_DEFAULT":     ARAiMeshFeatureManualResetDefault,
 	"MANUAL_STA_BINDING":       ARAiMeshFeatureManualStaBinding,
+	"AFC":                      ARAiMeshFeatureAfc,
+	"CABLE_DIAG":               ARAiMeshFeatureCableDiag,
+	"CENTRAL_OPTIMIZATION":     ARAiMeshFeatureCentralOptimization,
 	"GUEST_NETWORK":            ARAiMeshFeatureGuestNetwork,
 	"LOCAL_ACCESS":             ARAiMeshFeatureLocalAccess,
 	"MLO_BH":                   ARAiMeshFeatureMloBh,
 	"MLO_FH":                   ARAiMeshFeatureMloFh,
+	"MULTILAN_MWL":             ARAiMeshFeatureMultilanMwl,
+	"NO_FW_MANUAL":             ARAiMeshFeatureNoFwManual,
+	"ONBOARDING_5G":            ARAiMeshFeatureOnboarding5g,
 	"PORT_STATUS":              ARAiMeshFeaturePortStatus,
+	"REVERT_FW":                ARAiMeshFeatureRevertFw,
+	"ROLLBACK_FW":              ARAiMeshFeatureRollbackFw,
 	"SCHED_V2":                 ARAiMeshFeatureSchedV2,
+	"SCHED_V3":                 ARAiMeshFeatureSchedV3,
+	"SDN":                      ARAiMeshFeatureSdn,
 	"SMART_HOME_MASTER_UI":     ARAiMeshFeatureSmartHomeMasterUi,
 	"SWITCHCTRL":               ARAiMeshFeatureSwitchctrl,
+	"UPDATE":                   ARAiMeshFeatureUpdate,
 	"USB":                      ARAiMeshFeatureUsb,
 	"VIF_ONBOARDING":           ARAiMeshFeatureVifOnboarding,
+	"WIFI7":                    ARAiMeshFeatureWifi7,
 	"WIFI_RADIO":               ARAiMeshFeatureWifiRadio,
 	"WPA3":                     ARAiMeshFeatureWpa3,
 	"WPA3_ENTERPRISE":          ARAiMeshFeatureWpa3Enterprise,
@@ -355,16 +391,28 @@ var aRAiMeshFeatureNames = map[ARAiMeshFeature]string{
 	ARAiMeshFeatureManualReboot:          "MANUAL_REBOOT",
 	ARAiMeshFeatureManualResetDefault:    "MANUAL_RESET_DEFAULT",
 	ARAiMeshFeatureManualStaBinding:      "MANUAL_STA_BINDING",
+	ARAiMeshFeatureAfc:                   "AFC",
+	ARAiMeshFeatureCableDiag:             "CABLE_DIAG",
+	ARAiMeshFeatureCentralOptimization:   "CENTRAL_OPTIMIZATION",
 	ARAiMeshFeatureGuestNetwork:          "GUEST_NETWORK",
 	ARAiMeshFeatureLocalAccess:           "LOCAL_ACCESS",
 	ARAiMeshFeatureMloBh:                 "MLO_BH",
 	ARAiMeshFeatureMloFh:                 "MLO_FH",
+	ARAiMeshFeatureMultilanMwl:           "MULTILAN_MWL",
+	ARAiMeshFeatureNoFwManual:            "NO_FW_MANUAL",
+	ARAiMeshFeatureOnboarding5g:          "ONBOARDING_5G",
 	ARAiMeshFeaturePortStatus:            "PORT_STATUS",
+	ARAiMeshFeatureRevertFw:              "REVERT_FW",
+	ARAiMeshFeatureRollbackFw:            "ROLLBACK_FW",
 	ARAiMeshFeatureSchedV2:               "SCHED_V2",
+	ARAiMeshFeatureSchedV3:               "SCHED_V3",
+	ARAiMeshFeatureSdn:                   "SDN",
 	ARAiMeshFeatureSmartHomeMasterUi:     "SMART_HOME_MASTER_UI",
 	ARAiMeshFeatureSwitchctrl:            "SWITCHCTRL",
+	ARAiMeshFeatureUpdate:                "UPDATE",
 	ARAiMeshFeatureUsb:                   "USB",
 	ARAiMeshFeatureVifOnboarding:         "VIF_ONBOARDING",
+	ARAiMeshFeatureWifi7:                 "WIFI7",
 	ARAiMeshFeatureWifiRadio:             "WIFI_RADIO",
 	ARAiMeshFeatureWpa3:                  "WPA3",
 	ARAiMeshFeatureWpa3Enterprise:        "WPA3_ENTERPRISE",

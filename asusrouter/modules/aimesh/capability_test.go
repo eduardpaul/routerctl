@@ -36,6 +36,50 @@ func TestTranslateFeaturesMloBits(t *testing.T) {
 	}
 }
 
+func TestTranslateFeaturesRcSupportFirmwareBits(t *testing.T) {
+	// bits 0,2-11,13,15,16 (reported by a node)
+	features := TranslateFeatures(map[string]any{"4": "110589"})
+
+	want := featureSet(
+		ARAiMeshFeatureUsb,
+		ARAiMeshFeatureWpa3,
+		ARAiMeshFeatureVifOnboarding,
+		ARAiMeshFeatureSchedV2,
+		ARAiMeshFeatureWifiRadio,
+		ARAiMeshFeatureSchedV3,
+		ARAiMeshFeatureRevertFw,
+		ARAiMeshFeatureSwitchctrl,
+		ARAiMeshFeaturePortStatus,
+		ARAiMeshFeatureLocalAccess,
+		ARAiMeshFeatureCableDiag,
+		ARAiMeshFeatureUpdate,
+		ARAiMeshFeatureSdn,
+		ARAiMeshFeatureWpa3Enterprise,
+	)
+	if !reflect.DeepEqual(features, want) {
+		t.Fatalf("got %v, want %v", features.Sorted(), want.Sorted())
+	}
+}
+
+func TestTranslateFeaturesRcSupportHighBits(t *testing.T) {
+	bits := (1 << 12) | (1 << 14) | (1 << 17) |
+		(1 << 23) | (1 << 24) | (1 << 25) | (1 << 27)
+	features := TranslateFeatures(map[string]any{"4": strconv.Itoa(bits)})
+
+	want := featureSet(
+		ARAiMeshFeatureNoFwManual,
+		ARAiMeshFeatureRollbackFw,
+		ARAiMeshFeatureCentralOptimization,
+		ARAiMeshFeatureWifi7,
+		ARAiMeshFeatureMultilanMwl,
+		ARAiMeshFeatureAfc,
+		ARAiMeshFeatureOnboarding5g,
+	)
+	if !reflect.DeepEqual(features, want) {
+		t.Fatalf("got %v, want %v", features.Sorted(), want.Sorted())
+	}
+}
+
 func TestTranslateFeaturesEmpty(t *testing.T) {
 	cases := []struct {
 		name       string
@@ -119,6 +163,17 @@ func TestTranslateFeaturesAcknowledgedBitsNotWarned(t *testing.T) {
 	}
 }
 
+func TestTranslateFeaturesMappedFirmwareBitsNotWarned(t *testing.T) {
+	warned := captureWarnings(t)
+
+	// bits now mapped (e.g. 7, revert_fw) no longer warn
+	TranslateFeatures(map[string]any{"4": "110589"})
+
+	if len(*warned) != 0 {
+		t.Fatalf("got %v, want no warnings", *warned)
+	}
+}
+
 func TestIsFullyDecoded(t *testing.T) {
 	cases := []struct {
 		name       string
@@ -129,6 +184,8 @@ func TestIsFullyDecoded(t *testing.T) {
 		{"lacp_full", "5", "1", true},
 		{"led_all_known", "1", "127", true},
 		{"led_unknown_bit7", "1", "128", false},
+		{"rc_support_full", "4", "110589", true},
+		{"rc_support_acknowledged_bit19", "4", strconv.Itoa(1 << 19), false},
 		{"unknown_index", "99", "1", false},
 		{"non_int", "4", "x", false},
 	}
