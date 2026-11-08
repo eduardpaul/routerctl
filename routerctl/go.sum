@@ -1,11 +1,11 @@
 github.com/eclipse/paho.mqtt.golang v1.5.1 h1:/VSOv3oDLlpqR2Epjn1Q7b2bSTplJIeV2ISgCl2W7nE=
 github.com/eclipse/paho.mqtt.golang v1.5.1/go.mod h1:1/yJCneuyOoCOzKSsOTUc0AJfpsItBGWvYpBLimhArU=
-github.com/eduardpaul/routerctl/asusrouter v0.1.0 h1:Eo5elIohgO37b6inBh/WtHlkKetkfHqnRwYsTU0IJ3Q=
-github.com/eduardpaul/routerctl/asusrouter v0.1.0/go.mod h1:sR3HC34dOJPjNp1Hle/+vjPTCz19JJbCmXqg4ARXkCo=
+github.com/eduardpaul/routerctl/asusrouter v0.1.1 h1:VJhUdgaLbb6s0gWn9EZSpScLzS5q1xF+jxq1/PsA9XM=
+github.com/eduardpaul/routerctl/asusrouter v0.1.1/go.mod h1:sR3HC34dOJPjNp1Hle/+vjPTCz19JJbCmXqg4ARXkCo=
 github.com/eduardpaul/routerctl/netkit v0.1.0 h1:0fQzocOg2/6hME5xlLm2NO1BfNrv3dYTIJK4GDJhCJE=
 github.com/eduardpaul/routerctl/netkit v0.1.0/go.mod h1:IXNhAoXP54QL872Zj+VOLYVPuPjbNYZXzp1GiC/CUMY=
-github.com/eduardpaul/routerctl/routerkit v0.1.1 h1:PMgxbeqjYaSMz8OihNU54v2tWnuuCA0CFddoKkUc/OQ=
-github.com/eduardpaul/routerctl/routerkit v0.1.1/go.mod h1:5HhEtCdZZjr5BwecyEDKBzV9s1gV2/nxUWkLQQ8k5FM=
+github.com/eduardpaul/routerctl/routerkit v0.1.2 h1:5/AB4zFSbaeeO3nDTDXtut2u+QemCBNlgeV/HV2NKiI=
+github.com/eduardpaul/routerctl/routerkit v0.1.2/go.mod h1:rjYyd2ClonMbC+ffnE2v/drwQ+fhU/tLttETMPjG1ys=
 github.com/gorilla/websocket v1.5.3 h1:saDtZ6Pbx/0u+bgYQ3q96pZgCzfhKXGPqt7kZ72aNNg=
 github.com/gorilla/websocket v1.5.3/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 golang.org/x/net v0.44.0 h1:evd8IRDyfNBMBTTY5XRF1vaZlD+EmWx6x8PkhR04H/I=
