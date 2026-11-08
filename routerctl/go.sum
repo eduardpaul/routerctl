@@ -4,8 +4,8 @@ github.com/eduardpaul/routerctl/asusrouter v0.1.0 h1:Eo5elIohgO37b6inBh/WtHlkKet
 github.com/eduardpaul/routerctl/asusrouter v0.1.0/go.mod h1:sR3HC34dOJPjNp1Hle/+vjPTCz19JJbCmXqg4ARXkCo=
 github.com/eduardpaul/routerctl/netkit v0.1.0 h1:0fQzocOg2/6hME5xlLm2NO1BfNrv3dYTIJK4GDJhCJE=
 github.com/eduardpaul/routerctl/netkit v0.1.0/go.mod h1:IXNhAoXP54QL872Zj+VOLYVPuPjbNYZXzp1GiC/CUMY=
-github.com/eduardpaul/routerctl/routerkit v0.1.0 h1:Vbh4mrzw6k9uaTWL+rBDllaDuF8g5fGj7ZyW765Y3lw=
-github.com/eduardpaul/routerctl/routerkit v0.1.0/go.mod h1:t6jCcxp0ZDl8Iq1opxyxhmPk1bByrPBjeqlqV0wvZOw=
+github.com/eduardpaul/routerctl/routerkit v0.1.1 h1:PMgxbeqjYaSMz8OihNU54v2tWnuuCA0CFddoKkUc/OQ=
+github.com/eduardpaul/routerctl/routerkit v0.1.1/go.mod h1:5HhEtCdZZjr5BwecyEDKBzV9s1gV2/nxUWkLQQ8k5FM=
 github.com/gorilla/websocket v1.5.3 h1:saDtZ6Pbx/0u+bgYQ3q96pZgCzfhKXGPqt7kZ72aNNg=
 github.com/gorilla/websocket v1.5.3/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 golang.org/x/net v0.44.0 h1:evd8IRDyfNBMBTTY5XRF1vaZlD+EmWx6x8PkhR04H/I=
