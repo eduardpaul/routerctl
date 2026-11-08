@@ -1,0 +1,19 @@
+# Build output
+/bin/
+/parity/.parity-go
+parity/**/go.json
+__pycache__/
+.ruff_cache/
+.venv/
+
+# Captures from real devices: secrets, never commit
+parity/local/
+routerkit/brands/*/testdata/local/
+
+# Node-RED package
+node-red/node_modules/
+node-red/*.tgz
+node-red/test/docker/.work/
+
+# Local tool settings
+.claude/settings.local.json

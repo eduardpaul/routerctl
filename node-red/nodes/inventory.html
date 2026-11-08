@@ -1,0 +1,80 @@
+<script type="text/javascript">
+  RED.nodes.registerType('routerctl-inventory', {
+    category: 'routerctl',
+    color: '#7FB7DF',
+    defaults: {
+      name: { value: '' },
+      server: { value: '', type: 'routerctl-server', required: true },
+      operation: { value: 'approve' },
+      mac: { value: '' },
+      label: { value: '' },
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: 'font-awesome/fa-address-book',
+    label: function () {
+      return this.name || (this.operation + ' device');
+    },
+    paletteLabel: 'inventory',
+    oneditprepare: function () {
+      var toggle = function () {
+        $('#routerctl-inventory-label-row').toggle($('#node-input-operation').val() === 'label');
+      };
+      $('#node-input-operation').on('change', toggle);
+      toggle();
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="routerctl-inventory">
+  <div class="form-row">
+    <label for="node-input-server"><i class="fa fa-server"></i> Server</label>
+    <input type="text" id="node-input-server">
+  </div>
+  <div class="form-row">
+    <label for="node-input-operation"><i class="fa fa-pencil"></i> Do</label>
+    <select id="node-input-operation">
+      <option value="approve">approve (mark known)</option>
+      <option value="unapprove">unapprove (mark unknown)</option>
+      <option value="label">label</option>
+      <option value="forget">forget (device_new fires again)</option>
+      <option value="get">get the entry</option>
+    </select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-mac"><i class="fa fa-laptop"></i> MAC</label>
+    <input type="text" id="node-input-mac" placeholder="empty: from the message">
+  </div>
+  <div class="form-row" id="routerctl-inventory-label-row">
+    <label for="node-input-label"><i class="fa fa-tag"></i> Label</label>
+    <input type="text" id="node-input-label" placeholder="empty: msg.label">
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="routerctl-inventory">
+  <p>Edits the routerctl device inventory: every MAC the routers have seen,
+  with a <i>known</i> flag and a label. Known devices get Home Assistant trackers
+  and don't count as intruders.</p>
+  <h3>Inputs</h3>
+  <dl class="message-properties">
+    <dt class="optional">mac <span class="property-type">string</span></dt>
+    <dd>The device. Also read from <code>msg.payload</code> (a MAC string,
+      <code>payload.mac</code>, or a routerctl event's <code>payload.data.mac</code>),
+      so a <code>device_new</code> event can be wired straight in.</dd>
+    <dt class="optional">label <span class="property-type">string</span></dt>
+    <dd>For <i>label</i>: the new label (empty clears it). Labelling also marks the device known.</dd>
+    <dt class="optional">operation <span class="property-type">string</span></dt>
+    <dd>Overrides <i>Do</i>: <code>approve</code>, <code>unapprove</code>,
+      <code>label</code>, <code>forget</code>, <code>get</code>.</dd>
+  </dl>
+  <h3>Outputs</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">object</span></dt>
+    <dd>The entry: <code>{mac, first_seen, last_seen, name, vendor, ip, known, label, router, online}</code>
+      (<code>{mac, forgotten: true}</code> after <i>forget</i>).</dd>
+  </dl>
+</script>

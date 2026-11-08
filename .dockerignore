@@ -1,0 +1,9 @@
+.git
+bin/
+docs/
+node-red/
+parity/
+third_party/
+**/*.jsonl
+**/testdata/local
+routerctl-state.json

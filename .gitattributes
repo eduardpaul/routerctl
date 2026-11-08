@@ -1,0 +1,5 @@
+# Keep LF everywhere: fixtures and goldens are compared byte for byte
+* text=auto eol=lf
+*.exe binary
+*.png binary
+*.tgz binary

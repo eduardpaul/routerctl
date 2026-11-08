@@ -1,0 +1,119 @@
+{
+  "time": "0001-01-01T00:00:00Z",
+  "clients": [
+    {
+      "mac": "02:00:5e:00:00:09",
+      "ip": "192.168.1.129",
+      "name": "host-1",
+      "online": true,
+      "connection": "wired",
+      "extra": {
+        "ipv6": "fe80::1007",
+        "port": "LAN1"
+      }
+    },
+    {
+      "mac": "02:00:5e:00:00:0a",
+      "ip": "192.168.1.2",
+      "online": true,
+      "connection": "wired",
+      "extra": {
+        "port": "LAN5"
+      }
+    }
+  ],
+  "wan": {
+    "connected": true,
+    "ip": "203.0.113.16",
+    "ipv6": "2001:db8:103::3",
+    "gateway": "10.0.0.5",
+    "dns": [
+      "100.64.0.1",
+      "100.64.0.3"
+    ],
+    "protocol": "pppoe",
+    "uptime": 1605459,
+    "extra": {
+      "connections": [
+        {
+          "default_gw": false,
+          "ip": "10.0.0.2",
+          "name": "omci_ipv4_static_1",
+          "protocol": "static",
+          "services": "TR069_VoIP",
+          "status": "Connected",
+          "vlan": 2
+        },
+        {
+          "default_gw": true,
+          "ip": "203.0.113.16",
+          "name": "INTERNET",
+          "protocol": "pppoe",
+          "services": "INTERNET",
+          "status": "Connected",
+          "vlan": 20
+        }
+      ],
+      "dns6": [
+        "2001:db8:106::6",
+        "2001:db8:101::1"
+      ],
+      "gateway6": "fe80::1004",
+      "ipv6_prefix": "2001:db8:102::2/56",
+      "mac": "02:00:5e:00:00:02",
+      "mtu": 1492,
+      "name": "INTERNET",
+      "status": "Connected",
+      "status6": "Connected",
+      "vlan": 20
+    }
+  },
+  "system": {
+    "cpu_usage": 0,
+    "ram_usage": 62,
+    "uptime": 1605583,
+    "extra": {
+      "cpu_cores": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "traffic": [
+    {
+      "name": "lan1",
+      "rx_bytes": 15319675388,
+      "tx_bytes": 16145705391
+    },
+    {
+      "name": "lan2",
+      "rx_bytes": 0,
+      "tx_bytes": 0
+    },
+    {
+      "name": "lan3",
+      "rx_bytes": 0,
+      "tx_bytes": 0
+    },
+    {
+      "name": "lan4",
+      "rx_bytes": 0,
+      "tx_bytes": 0
+    },
+    {
+      "name": "lan5",
+      "rx_bytes": 68873273431,
+      "tx_bytes": 362518304433
+    },
+    {
+      "name": "wan",
+      "rx_bytes": 1514774866,
+      "tx_bytes": 3382469842
+    }
+  ],
+  "firmware": {
+    "current": "V2.0.12P7N17"
+  }
+}
