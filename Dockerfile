@@ -23,7 +23,7 @@ RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH GOARM=${TARGETVARIANT#v} \
     -o /out/routerctl ./routerctl/cmd/routerctl \
  && mkdir -p /out/data
 
-FROM gcr.io/distroless/static-debian12:nonroot
+FROM gcr.io/distroless/static-debian13:nonroot
 ARG VERSION=dev
 ARG REVISION=unknown
 LABEL org.opencontainers.image.title="routerctl" \

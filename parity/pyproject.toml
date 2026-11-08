@@ -16,4 +16,4 @@ package = false
 asusrouter = { path = "../third_party/asusrouter-py", editable = true }
 
 [dependency-groups]
-dev = ["ruff==0.17.3"]
+dev = ["ruff==0.17.4"]
