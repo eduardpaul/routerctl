@@ -50,7 +50,7 @@ jobs:
           echo "module=$module" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           go-version-file: ${{ steps.tag.outputs.module }}/go.mod
           cache-dependency-path: ${{ steps.tag.outputs.module }}/go.sum
@@ -87,7 +87,7 @@ jobs:
       - uses: actions/checkout@v7
 
       # The newest Go: the binaries carry its standard library
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           go-version: stable
           check-latest: true
