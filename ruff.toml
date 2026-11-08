@@ -1,0 +1,41 @@
+# Ruff for the Python tooling of this repo: the parity harness and the
+# brand capture scripts. The Python library (third_party/) has its own.
+line-length = 79
+target-version = "py311"
+extend-exclude = ["third_party", "node-red"]
+
+[format]
+exclude = ["*.md"]
+
+[lint]
+select = [
+    "A001", "ASYNC", "BLE", "C", "D", "E", "F", "I", "ICN001", "INP", "ISC",
+    "LOG", "N", "PERF", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE",
+    "S", "SIM", "T20", "UP", "W",
+]
+ignore = ["D202"]
+
+[lint.isort]
+force-sort-within-sections = true
+known-first-party = ["asusrouter"]
+combine-as-imports = true
+split-on-trailing-comma = false
+
+[lint.pydocstyle]
+convention = "pep257"
+
+[lint.per-file-ignores]
+"parity/**" = [
+    "INP001",  # standalone scripts run by path
+    "PLR2004", # magic values in comparisons
+    "T201",    # print is the scripts' output
+]
+"parity/gen_go_*.py" = [
+    "S603",    # subprocess runs gofmt with fixed arguments
+    "S607",    # gofmt is found on PATH
+]
+"routerkit/brands/*/scripts/*.py" = [
+    "INP001",
+    "PLR2004",
+    "T201",
+]

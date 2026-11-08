@@ -1,0 +1,93 @@
+{
+  "time": "0001-01-01T00:00:00Z",
+  "clients": [
+    {
+      "mac": "02:00:00:00:10:01",
+      "ip": "192.168.50.10",
+      "name": "laptop",
+      "vendor": "Acme",
+      "online": true,
+      "connection": "5ghz",
+      "node": "02:00:00:00:00:01",
+      "rssi": -48
+    },
+    {
+      "mac": "02:00:00:00:10:02",
+      "ip": "192.168.50.11",
+      "name": "phone",
+      "vendor": "Acme",
+      "online": true,
+      "connection": "2.4ghz",
+      "node": "02:00:00:00:00:02",
+      "rssi": -67
+    },
+    {
+      "mac": "02:00:00:00:10:03",
+      "ip": "192.168.50.12",
+      "name": "nas",
+      "vendor": "Synology",
+      "online": true,
+      "connection": "wired",
+      "node": "02:00:00:00:00:01"
+    }
+  ],
+  "wan": {
+    "connected": true,
+    "ip": "203.0.113.7",
+    "gateway": "203.0.113.1",
+    "dns": [
+      "1.1.1.1",
+      "9.9.9.9"
+    ],
+    "protocol": "dhcp",
+    "uptime": 86400
+  },
+  "system": {
+    "cpu_usage": 12.5,
+    "ram_usage": 41,
+    "temperatures": {
+      "2.4ghz": 44,
+      "5ghz": 47,
+      "cpu": 55.5
+    },
+    "uptime": 172800
+  },
+  "traffic": [
+    {
+      "name": "lan",
+      "rx_bytes": 401000,
+      "tx_bytes": 908000,
+      "rx_rate": 1000,
+      "tx_rate": 8000
+    },
+    {
+      "name": "wan",
+      "rx_bytes": 1012500,
+      "tx_bytes": 252500,
+      "rx_rate": 12500,
+      "tx_rate": 2500
+    }
+  ],
+  "nodes": [
+    {
+      "mac": "02:00:00:00:00:01",
+      "name": "Living room",
+      "model": "FAKE-1000",
+      "ip": "192.168.50.1",
+      "online": true,
+      "clients": 2
+    },
+    {
+      "mac": "02:00:00:00:00:02",
+      "name": "Office",
+      "model": "FAKE-500",
+      "ip": "192.168.50.2",
+      "online": true,
+      "clients": 1
+    }
+  ],
+  "firmware": {
+    "current": "1.0.0",
+    "update_available": false
+  }
+}

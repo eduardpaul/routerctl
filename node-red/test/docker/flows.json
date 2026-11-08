@@ -1,0 +1,397 @@
+[
+ {
+  "id": "t",
+  "type": "tab",
+  "label": "e2e",
+  "disabled": false,
+  "info": ""
+ },
+ {
+  "id": "e2e_server",
+  "type": "routerctl-server",
+  "name": "routerctl",
+  "url": "http://routerctl:9100"
+ },
+ {
+  "id": "ev_all",
+  "type": "routerctl-event",
+  "z": "t",
+  "name": "all",
+  "server": "e2e_server",
+  "mode": "event",
+  "types": [],
+  "devices": "",
+  "macs": "",
+  "unknownOnly": false,
+  "x": 120,
+  "y": 40,
+  "wires": [
+   [
+    "st_events"
+   ]
+  ]
+ },
+ {
+  "id": "status_ev",
+  "type": "status",
+  "z": "t",
+  "name": "",
+  "scope": [
+   "ev_all"
+  ],
+  "x": 120,
+  "y": 500,
+  "wires": [
+   [
+    "st_status"
+   ]
+  ]
+ },
+ {
+  "id": "st_status",
+  "type": "function",
+  "z": "t",
+  "name": "store status",
+  "func": "const l = global.get('status') || [];\nl.push(new Date().toISOString().slice(11,19) + ' ' + (msg.status.text || '') + ' ' + (msg.status.fill || ''));\nglobal.set('status', l.slice(-40));\nreturn null;",
+  "outputs": 1,
+  "x": 320,
+  "y": 500,
+  "wires": [
+   []
+  ]
+ },
+ {
+  "id": "st_events",
+  "type": "function",
+  "z": "t",
+  "name": "store events",
+  "func": "const list = global.get('events') || [];\nlist.push(msg.payload);\nglobal.set('events', list.slice(-200));\nreturn null;",
+  "outputs": 1,
+  "x": 340,
+  "y": 40,
+  "wires": [
+   []
+  ]
+ },
+ {
+  "id": "ev_pres",
+  "type": "routerctl-event",
+  "z": "t",
+  "name": "phone",
+  "server": "e2e_server",
+  "mode": "presence",
+  "types": [],
+  "devices": "",
+  "macs": "02:00:00:00:10:02",
+  "unknownOnly": false,
+  "x": 120,
+  "y": 90,
+  "wires": [
+   [
+    "st_presence"
+   ]
+  ]
+ },
+ {
+  "id": "st_presence",
+  "type": "function",
+  "z": "t",
+  "name": "store presence",
+  "func": "const list = global.get('presence') || [];\nlist.push(msg.payload);\nglobal.set('presence', list.slice(-200));\nreturn null;",
+  "outputs": 1,
+  "x": 340,
+  "y": 90,
+  "wires": [
+   []
+  ]
+ },
+ {
+  "id": "ev_new",
+  "type": "routerctl-event",
+  "z": "t",
+  "name": "intruder",
+  "server": "e2e_server",
+  "mode": "event",
+  "types": [
+   "device_new"
+  ],
+  "devices": "",
+  "macs": "",
+  "unknownOnly": true,
+  "x": 120,
+  "y": 140,
+  "wires": [
+   [
+    "inv"
+   ]
+  ]
+ },
+ {
+  "id": "inv",
+  "type": "routerctl-inventory",
+  "z": "t",
+  "name": "approve",
+  "server": "e2e_server",
+  "operation": "approve",
+  "mac": "",
+  "label": "",
+  "x": 320,
+  "y": 140,
+  "wires": [
+   [
+    "st_approved"
+   ]
+  ]
+ },
+ {
+  "id": "st_approved",
+  "type": "function",
+  "z": "t",
+  "name": "store approved",
+  "func": "const list = global.get('approved') || [];\nlist.push(msg.payload);\nglobal.set('approved', list.slice(-200));\nreturn null;",
+  "outputs": 1,
+  "x": 520,
+  "y": 140,
+  "wires": [
+   []
+  ]
+ },
+ {
+  "id": "in_q",
+  "type": "inject",
+  "z": "t",
+  "name": "query",
+  "props": [
+   {
+    "p": "payload"
+   }
+  ],
+  "repeat": "5",
+  "crontab": "",
+  "once": true,
+  "onceDelay": "2",
+  "topic": "",
+  "payload": "",
+  "payloadType": "date",
+  "x": 110,
+  "y": 200,
+  "wires": [
+   [
+    "q_cl",
+    "q_dev"
+   ]
+  ]
+ },
+ {
+  "id": "q_cl",
+  "type": "routerctl-query",
+  "z": "t",
+  "name": "",
+  "server": "e2e_server",
+  "what": "clients",
+  "device": "home",
+  "source": "",
+  "online": "",
+  "known": "",
+  "x": 320,
+  "y": 190,
+  "wires": [
+   [
+    "st_clients"
+   ]
+  ]
+ },
+ {
+  "id": "st_clients",
+  "type": "function",
+  "z": "t",
+  "name": "store clients",
+  "func": "global.set('clients', msg.payload);\nreturn null;",
+  "outputs": 1,
+  "x": 520,
+  "y": 190,
+  "wires": [
+   []
+  ]
+ },
+ {
+  "id": "q_dev",
+  "type": "routerctl-query",
+  "z": "t",
+  "name": "",
+  "server": "e2e_server",
+  "what": "device",
+  "device": "home",
+  "source": "",
+  "online": "",
+  "known": "",
+  "x": 320,
+  "y": 230,
+  "wires": [
+   [
+    "st_device"
+   ]
+  ]
+ },
+ {
+  "id": "st_device",
+  "type": "function",
+  "z": "t",
+  "name": "store device",
+  "func": "global.set('device', msg.payload);\nreturn null;",
+  "outputs": 1,
+  "x": 520,
+  "y": 230,
+  "wires": [
+   []
+  ]
+ },
+ {
+  "id": "in_a",
+  "type": "inject",
+  "z": "t",
+  "name": "act",
+  "props": [
+   {
+    "p": "payload"
+   }
+  ],
+  "repeat": "5",
+  "crontab": "",
+  "once": true,
+  "onceDelay": "3",
+  "topic": "",
+  "payload": "false",
+  "payloadType": "bool",
+  "x": 110,
+  "y": 290,
+  "wires": [
+   [
+    "a_led",
+    "a_reboot"
+   ]
+  ]
+ },
+ {
+  "id": "a_led",
+  "type": "routerctl-action",
+  "z": "t",
+  "name": "",
+  "server": "e2e_server",
+  "device": "home",
+  "action": "led",
+  "args": "",
+  "x": 320,
+  "y": 280,
+  "wires": [
+   [
+    "st_action"
+   ]
+  ]
+ },
+ {
+  "id": "st_action",
+  "type": "function",
+  "z": "t",
+  "name": "store action",
+  "func": "global.set('action', msg.payload);\nreturn null;",
+  "outputs": 1,
+  "x": 520,
+  "y": 280,
+  "wires": [
+   []
+  ]
+ },
+ {
+  "id": "a_reboot",
+  "type": "routerctl-action",
+  "z": "t",
+  "name": "",
+  "server": "e2e_server",
+  "device": "home",
+  "action": "reboot",
+  "args": "",
+  "x": 320,
+  "y": 320,
+  "wires": [
+   []
+  ]
+ },
+ {
+  "id": "catch",
+  "type": "catch",
+  "z": "t",
+  "name": "",
+  "scope": [
+   "a_reboot",
+   "a_led",
+   "q_cl",
+   "q_dev",
+   "inv"
+  ],
+  "uncaught": false,
+  "x": 110,
+  "y": 380,
+  "wires": [
+   [
+    "st_errors"
+   ]
+  ]
+ },
+ {
+  "id": "st_errors",
+  "type": "function",
+  "z": "t",
+  "name": "store errors",
+  "func": "const list = global.get('errors') || [];\nlist.push({source: msg.error.source && msg.error.source.id, message: msg.error.message, code: msg.payload && msg.payload.error && msg.payload.error.code});\nglobal.set('errors', list.slice(-50));\nreturn null;",
+  "outputs": 1,
+  "x": 320,
+  "y": 380,
+  "wires": [
+   []
+  ]
+ },
+ {
+  "id": "http_in",
+  "type": "http in",
+  "z": "t",
+  "name": "",
+  "url": "/e2e",
+  "method": "get",
+  "x": 110,
+  "y": 440,
+  "wires": [
+   [
+    "readout"
+   ]
+  ]
+ },
+ {
+  "id": "readout",
+  "type": "function",
+  "z": "t",
+  "name": "read-out",
+  "func": "const keys = ['events','presence','approved','clients','device','action','errors','status'];\nmsg.payload = {};\nfor (const k of keys) msg.payload[k] = global.get(k);\nreturn msg;",
+  "outputs": 1,
+  "x": 300,
+  "y": 440,
+  "wires": [
+   [
+    "http_out"
+   ]
+  ]
+ },
+ {
+  "id": "http_out",
+  "type": "http response",
+  "z": "t",
+  "name": "",
+  "statusCode": "",
+  "headers": {
+   "content-type": "application/json"
+  },
+  "x": 480,
+  "y": 440,
+  "wires": []
+ }
+]

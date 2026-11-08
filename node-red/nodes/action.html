@@ -1,0 +1,126 @@
+<script type="text/javascript">
+  RED.nodes.registerType('routerctl-action', {
+    category: 'routerctl',
+    color: '#E9967A',
+    defaults: {
+      name: { value: '' },
+      server: { value: '', type: 'routerctl-server', required: true },
+      device: { value: '' },
+      action: { value: '' },
+      args: {
+        value: '',
+        validate: function (v) {
+          if (!v || !String(v).trim()) return true;
+          try { var o = JSON.parse(v); return o !== null && typeof o === 'object' && !Array.isArray(o); } catch (e) { return false; }
+        },
+      },
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: 'font-awesome/fa-bolt',
+    label: function () {
+      return this.name || (this.action ? this.action + (this.device ? ' @ ' + this.device : '') : 'routerctl action');
+    },
+    paletteLabel: 'action',
+    oneditprepare: function () {
+      var specs = {};
+      var describe = function () {
+        var s = specs[$('#node-input-action').val()];
+        var box = $('#routerctl-action-spec').empty();
+        if (!s) return;
+        var args = (s.args || []).map(function (a) {
+          var t = a.choices && a.choices.length ? a.choices.join('|') : (a.type === 'bool' ? 'on|off' : a.type);
+          return (a.required ? '' : '[') + a.name + '=' + t + (a.required ? '' : ']');
+        }).join(' ');
+        $('<div>').text(s.help + ' (' + s.danger + ')').appendTo(box);
+        if (args) $('<code>').text(args).appendTo(box);
+        if (!s.allowed) $('<div style="color:#c00">').text('Refused by the daemon policy: ' + s.reason).appendTo(box);
+      };
+      var refresh = function () {
+        var server = $('#node-input-server').val();
+        if (!server || server === '_ADD_') return;
+        $.getJSON('routerctl/' + server + '/devices').done(function (devs) {
+          var dl = $('#routerctl-action-devices').empty();
+          (devs || []).forEach(function (d) { $('<option>').attr('value', d.name).appendTo(dl); });
+        });
+        var dev = $('#node-input-device').val();
+        if (!dev) return;
+        $.getJSON('routerctl/' + server + '/actions?device=' + encodeURIComponent(dev)).done(function (acts) {
+          var dl = $('#routerctl-action-actions').empty();
+          specs = {};
+          (acts || []).forEach(function (a) {
+            specs[a.name] = a;
+            $('<option>').attr('value', a.name).text(a.allowed ? a.help : 'not allowed: ' + a.reason).appendTo(dl);
+          });
+          describe();
+        }).fail(function (xhr) {
+          $('#routerctl-action-spec').text((xhr.responseJSON && xhr.responseJSON.error && xhr.responseJSON.error.message) || 'cannot list the actions');
+        });
+      };
+      $('#node-input-server').on('change', refresh);
+      $('#node-input-device').on('change', refresh);
+      $('#node-input-action').on('change input', describe);
+      refresh();
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="routerctl-action">
+  <div class="form-row">
+    <label for="node-input-server"><i class="fa fa-server"></i> Server</label>
+    <input type="text" id="node-input-server">
+  </div>
+  <div class="form-row">
+    <label for="node-input-device"><i class="fa fa-wifi"></i> Router</label>
+    <input type="text" id="node-input-device" list="routerctl-action-devices" placeholder="router name (or msg.device)">
+    <datalist id="routerctl-action-devices"></datalist>
+  </div>
+  <div class="form-row">
+    <label for="node-input-action"><i class="fa fa-bolt"></i> Action</label>
+    <input type="text" id="node-input-action" list="routerctl-action-actions" placeholder="led, wifi, block-client, ... (or msg.action)">
+    <datalist id="routerctl-action-actions"></datalist>
+  </div>
+  <div class="form-row">
+    <label></label>
+    <div id="routerctl-action-spec" style="display:inline-block;width:70%"></div>
+  </div>
+  <div class="form-row">
+    <label for="node-input-args"><i class="fa fa-list"></i> Arguments</label>
+    <input type="text" id="node-input-args" placeholder='JSON, e.g. {"band":"5g1"} (msg.payload adds to it)'>
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="routerctl-action">
+  <p>Runs a router action through the routerctl daemon: LEDs, WiFi bands,
+  guest WiFi, blocking a client, kicking a client, speedtest, VPN, reboot, ...
+  The actions depend on the router; the editor lists them once the server is
+  deployed.</p>
+  <h3>Inputs</h3>
+  <dl class="message-properties">
+    <dt class="optional">payload <span class="property-type">object | string | boolean</span></dt>
+    <dd>An object is merged over the fixed <i>Arguments</i>
+      (<code>{"mac": "aa:bb:cc:dd:ee:ff", "state": "on"}</code>). A string is
+      the payload grammar of MQTT command topics: <code>on</code>,
+      <code>mac=aa:bb:cc:dd:ee:ff state=on</code>. <code>true</code> /
+      <code>false</code> switch an on/off action. Other payloads (an inject
+      timestamp) are ignored.</dd>
+    <dt class="optional">device / action <span class="property-type">string</span></dt>
+    <dd>Override the node settings.</dd>
+  </dl>
+  <h3>Outputs</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">object</span></dt>
+    <dd>The result: <code>{id, device, action, args, ok, pending?, result, time, danger}</code>.
+      <code>args</code> are the canonical values the router got.</dd>
+  </dl>
+  <h3>Errors</h3>
+  <p>A refused or failed action does not send a message: it raises an error for a
+  Catch node, with <code>msg.payload</code> set to the result and the code in
+  <code>payload.error.code</code>: <code>forbidden</code> (the daemon's
+  <code>commands.max_danger</code> policy, e.g. reboot), <code>invalid_args</code>,
+  <code>unsupported</code>, <code>rejected</code> (the router said no), ...</p>
+</script>

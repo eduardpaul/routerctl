@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>&#70;&#56;&#54;&#52;&#56;&#80;</title>
+<!-- extract of the F8648P login page (trimmed) -->
+<style>.logo{background: url(../img/Logo_ZTE.png) no-repeat 5px 30px;}</style>
+<script type="text/javascript" src="/jquery/common_lib.js"></script>
+<script type="text/javascript">
+function g_loginToken(xml)
+{
+var xmlObj = $(xml)[0].childNodes[0].textContent;
+var Password =$("#Frm_Password:not(.PostIgnore)").val();
+var SHA256Password =sha256(Password+xmlObj);
+var postData = {};
+postData["action"] = "login";
+postData["Password"] = SHA256Password;
+postData["Username"] = $("#Frm_Username").val();
+postData["_sessionTOKEN"] = $("#_sessionTOKEN").val();
+Password = undefined;
+SHA256Password = undefined;
+$.post( "/?_type=loginData&_tag=login_entry", postData, undefined, "json" )
+.done(function( data ) {
+$("#_sessionTOKEN").val(data.sess_token);
+if ( data.login_need_refresh )
+{
+top.location.href = top.location.href;
+}
+else
+{
+DisplayLoginErrorTip(data);
+}
+});
+postData = undefined;
+}
+</script>
+</head>
+<body>
+<div id="loginWrapper">
+<div class="emFont loginTitle">Bienvenido &#70;&#56;&#54;&#52;&#56;&#80;. Por favor inicie sesión. </div>
+<div id="loginContainer" class="loginContainer">
+<input type="hidden" name="_sessionTOKEN" id="_sessionTOKEN" value=""/>
+<div class="loginInstCfgArea">
+<div class="row">
+<label for="Frm_Username" class="left w120">Usuario</label>
+<div class="right">
+<input type="text" name="Frm_Username" id="Frm_Username" autocomplete="off" class="w180" value="" />
+</div>
+</div>
+<div class="row">
+<label for="Frm_Password" class="left w120">Contraseña</label>
+<div class="right">
+<input type="password" name="Frm_Password" id="Frm_Password" style="font-family: text-security-disc;" autocomplete="off" class="w180 passInvisible" value=""/>
+</div>
+</div>
+<div id="login_error" class="errorHint" style="display:none;">
+<span id="login_error_span"></span>
+<span id="login_error_waittime" value="0"></span>
+</div>
+</div>
+</div>
+
+</body>
+</html>

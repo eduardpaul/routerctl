@@ -1,0 +1,188 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  go:
+    name: Go ${{ matrix.go }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The minimum of go.work, and the current release (what the
+        # release binaries are built with)
+        go: ["1.24.x", "stable"]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: ${{ matrix.go }}
+          check-latest: ${{ matrix.go == 'stable' }}
+          cache-dependency-path: |
+            go.work.sum
+            */go.sum
+
+      - name: Format
+        run: make fmt
+
+      # The workspace (go.work) resolves the sibling modules; a replace
+      # directive would hide a missing requirement from consumers
+      - name: No replace directives
+        run: "! grep -n '^replace\\|^\\s*replace ' */go.mod"
+
+      - name: Vet
+        run: make vet
+
+      - name: Test (race, arch tests included)
+        run: make test
+
+      - name: Build
+        run: |
+          make build TAGS=noasus,nozte
+          make build
+          bin/routerctl version
+
+      - name: License copies
+        run: make licenses
+
+  # The release binaries for macOS and Windows: vet, test and build on
+  # those systems (no -race: it needs cgo there)
+  go-os:
+    name: Go on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: stable
+          check-latest: true
+          cache-dependency-path: |
+            go.work.sum
+            */go.sum
+
+      - name: Vet
+        run: go vet $(go list -m | sed 's#$#/...#')
+
+      - name: Test
+        run: go test -count=1 $(go list -m | sed 's#$#/...#')
+
+      - name: Build
+        run: |
+          go build -o bin/ ./routerctl/cmd/routerctl
+          bin/routerctl* version
+
+  parity:
+    name: Python/Go parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.work
+          cache-dependency-path: |
+            go.work.sum
+            */go.sum
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: parity/uv.lock
+
+      - name: Install the Python side
+        run: uv sync --project parity --locked
+
+      - name: Ruff
+        run: make lint-py
+
+      - name: Generated Go files are up to date
+        run: |
+          make gen
+          git diff --exit-code
+
+  docker:
+    name: Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build
+        run: make docker VERSION=ci
+
+      - name: Smoke test
+        run: |
+          docker run --rm routerctl:ci version
+          docker run --rm routerctl:ci config example > /dev/null
+
+  node-red:
+    name: Node-RED nodes
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: node-red
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: node-red/package-lock.json
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.work
+          cache-dependency-path: |
+            go.work.sum
+            */go.sum
+
+      - name: Install (lockfile, no install scripts)
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Unit tests
+        run: npm test
+
+      # The nodes in Node-RED against a real routerctl (fake driver), every
+      # payload checked against the API contract golden
+      - name: Contract tests
+        run: npm run test:contract
+
+  node-red-e2e:
+    name: Node-RED end-to-end (Docker)
+    needs: node-red
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      # The routerctl image + nodered/node-red 5.0 and 4.1 with the packed package
+      - name: Docker end-to-end
+        working-directory: node-red
+        run: bash test/docker/run.sh

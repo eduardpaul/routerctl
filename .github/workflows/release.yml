@@ -1,0 +1,216 @@
+name: Release
+
+# Tags (see docs/development.md, "Release"):
+#   netkit/vX.Y.Z  asusrouter/vX.Y.Z  routerkit/vX.Y.Z  routerctl/vX.Y.Z   Go modules
+#   node-red/vX.Y.Z                                                        npm package
+# routerctl/v* also publishes the release binaries and the Docker image.
+#
+# On a pull request that touches a release input, and on a manual run,
+# the workflow is a dry run: it builds the archives, the multi-arch image
+# and the npm package, and publishes nothing.
+on:
+  push:
+    tags:
+      - "netkit/v*"
+      - "asusrouter/v*"
+      - "routerkit/v*"
+      - "routerctl/v*"
+      - "node-red/v*"
+  pull_request:
+    paths:
+      - .github/workflows/release.yml
+      - Dockerfile
+      - Makefile
+      - node-red/package.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  go-module:
+    name: Go module (as a consumer builds it)
+    if: github.event_name == 'push' && !startsWith(github.ref_name, 'node-red/')
+    runs-on: ubuntu-latest
+    env:
+      GOWORK: "off"
+    outputs:
+      module: ${{ steps.tag.outputs.module }}
+      version: ${{ steps.tag.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Module of the tag
+        id: tag
+        run: |
+          tag="$GITHUB_REF_NAME"            # routerkit/v0.1.0
+          module="${tag%/*}"                # routerkit
+          version="${tag##*/}"              # v0.1.0
+          test -f "$module/go.mod" || { echo "no module at $module" >&2; exit 1; }
+          echo "module=$module" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: ${{ steps.tag.outputs.module }}/go.mod
+          cache-dependency-path: ${{ steps.tag.outputs.module }}/go.sum
+
+      # Fails on a sibling requirement that is missing or not released yet
+      - name: Requirements are complete and tidy
+        working-directory: ${{ steps.tag.outputs.module }}
+        run: go mod tidy -diff
+
+      - name: Build, vet and test without the workspace
+        working-directory: ${{ steps.tag.outputs.module }}
+        run: |
+          go build ./...
+          go vet ./...
+          go test -count=1 ./...
+
+      - name: go install at the tag
+        if: steps.tag.outputs.module == 'routerctl'
+        working-directory: ${{ runner.temp }}
+        env:
+          GOPROXY: direct
+        run: go install "github.com/eduardpaul/routerctl/routerctl/cmd/routerctl@${{ steps.tag.outputs.version }}"
+
+  binaries:
+    name: Release binaries
+    needs: go-module
+    if: ${{ !cancelled() && !failure() && (github.event_name != 'push' || needs.go-module.outputs.module == 'routerctl') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.go-module.outputs.version || 'v0.0.0-dryrun' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # The newest Go: the binaries carry its standard library
+      - uses: actions/setup-go@v6
+        with:
+          go-version: stable
+          check-latest: true
+          cache-dependency-path: |
+            go.work.sum
+            */go.sum
+
+      - name: Cross-compile
+        run: make cross VERSION="$VERSION"
+
+      - name: Archives and checksums
+        run: |
+          version="$VERSION"
+          mkdir dist
+          for bin in bin/routerctl-*; do
+            platform="${bin#bin/routerctl-}"
+            platform="${platform%.exe}"
+            dir="routerctl-${version}-${platform}"
+            mkdir "$dir"
+            cp LICENSE NOTICE README.md "$dir/"
+            case "$platform" in
+              windows-*)
+                cp "$bin" "$dir/routerctl.exe"
+                zip -qr "dist/$dir.zip" "$dir" ;;
+              *)
+                cp "$bin" "$dir/routerctl"
+                tar -czf "dist/$dir.tar.gz" "$dir" ;;
+            esac
+          done
+          (cd dist && sha256sum *.tar.gz *.zip > SHA256SUMS && cat SHA256SUMS)
+          tar -tzf dist/routerctl-"$version"-linux-amd64.tar.gz
+          unzip -l dist/routerctl-"$version"-windows-amd64.zip
+          "routerctl-$version-linux-amd64/routerctl" version
+
+      - name: GitHub release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "routerctl $VERSION" --generate-notes --verify-tag
+
+  image:
+    name: Docker image (GHCR)
+    needs: go-module
+    if: ${{ !cancelled() && !failure() && (github.event_name != 'push' || needs.go-module.outputs.module == 'routerctl') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+
+      - uses: docker/login-action@v3
+        if: github.event_name == 'push'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/routerctl
+          tags: |
+            type=match,pattern=routerctl/v(.*),group=1
+            type=match,pattern=routerctl/v(\d+\.\d+),group=1
+            type=raw,value=latest,enable=${{ github.event_name == 'push' }}
+            type=raw,value=dryrun,enable=${{ github.event_name != 'push' }}
+
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          push: ${{ github.event_name == 'push' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VERSION=${{ needs.go-module.outputs.version || 'v0.0.0-dryrun' }}
+            REVISION=${{ github.sha }}
+          provenance: true
+          sbom: true
+
+  npm:
+    name: Node-RED package (npm)
+    if: github.event_name != 'push' || startsWith(github.ref_name, 'node-red/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: node-red
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: The tag matches package.json
+        if: github.event_name == 'push'
+        run: |
+          want="${GITHUB_REF_NAME#node-red/v}"
+          have="$(node -p "require('./package.json').version")"
+          test "$want" = "$have" || { echo "tag v$want != package.json $have" >&2; exit 1; }
+
+      - name: Unit tests
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm test
+
+      - name: Package contents
+        run: npm pack --dry-run
+
+      # Trusted publishing (OIDC) when configured on npmjs.com; otherwise
+      # the NPM_TOKEN secret
+      - name: Publish with provenance
+        if: github.event_name == 'push'
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,0 +1,123 @@
+[
+  {
+    "id": "bedtime",
+    "type": "tab",
+    "label": "Bedtime",
+    "disabled": false,
+    "info": "Pause the internet of a client at 22:00 and resume it at 07:00 (block-client). Set the MAC in both inject nodes."
+  },
+  {
+    "id": "b_on",
+    "type": "inject",
+    "z": "bedtime",
+    "name": "22:00 block",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "00 22 * * *",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"mac\":\"aa:bb:cc:dd:ee:ff\",\"state\":\"on\"}",
+    "payloadType": "json",
+    "x": 140,
+    "y": 80,
+    "wires": [
+      [
+        "b_act"
+      ]
+    ]
+  },
+  {
+    "id": "b_off",
+    "type": "inject",
+    "z": "bedtime",
+    "name": "07:00 unblock",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "00 07 * * *",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"mac\":\"aa:bb:cc:dd:ee:ff\",\"state\":\"off\"}",
+    "payloadType": "json",
+    "x": 140,
+    "y": 140,
+    "wires": [
+      [
+        "b_act"
+      ]
+    ]
+  },
+  {
+    "id": "b_act",
+    "type": "routerctl-action",
+    "z": "bedtime",
+    "name": "",
+    "server": "rc_server",
+    "device": "router",
+    "action": "block-client",
+    "args": "",
+    "x": 360,
+    "y": 110,
+    "wires": [
+      [
+        "b_dbg"
+      ]
+    ]
+  },
+  {
+    "id": "b_dbg",
+    "type": "debug",
+    "z": "bedtime",
+    "name": "result",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "x": 560,
+    "y": 110,
+    "wires": []
+  },
+  {
+    "id": "b_catch",
+    "type": "catch",
+    "z": "bedtime",
+    "name": "failed",
+    "scope": [
+      "b_act"
+    ],
+    "uncaught": false,
+    "x": 350,
+    "y": 180,
+    "wires": [
+      [
+        "b_err"
+      ]
+    ]
+  },
+  {
+    "id": "b_err",
+    "type": "debug",
+    "z": "bedtime",
+    "name": "error",
+    "active": true,
+    "tosidebar": true,
+    "complete": "error",
+    "x": 550,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "rc_server",
+    "type": "routerctl-server",
+    "name": "routerctl",
+    "url": "http://routerctl:9100"
+  }
+]

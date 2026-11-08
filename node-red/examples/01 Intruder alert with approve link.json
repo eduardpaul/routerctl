@@ -1,0 +1,146 @@
+[
+  {
+    "id": "intruder",
+    "type": "tab",
+    "label": "Intruder alert",
+    "disabled": false,
+    "info": "A device that is not in the inventory joins: send a notification with an Approve link. Opening the link marks the device known (no more alerts, Home Assistant gets a tracker). Replace the debug node with your notifier (Telegram, ntfy, e-mail...) and set the base URL in the function."
+  },
+  {
+    "id": "i_ev",
+    "type": "routerctl-event",
+    "z": "intruder",
+    "name": "new unknown device",
+    "server": "rc_server",
+    "mode": "event",
+    "types": [
+      "device_new"
+    ],
+    "devices": "",
+    "macs": "",
+    "unknownOnly": true,
+    "x": 160,
+    "y": 80,
+    "wires": [
+      [
+        "i_fmt"
+      ]
+    ]
+  },
+  {
+    "id": "i_fmt",
+    "type": "function",
+    "z": "intruder",
+    "name": "notification text",
+    "func": "const base = 'http://nodered:1880'; // how your phone reaches Node-RED\nconst d = msg.payload.data;\nmsg.topic = 'New device on ' + msg.payload.device;\nmsg.payload = msg.payload.summary + '\\nApprove: ' + base + '/routerctl/approve?mac=' + encodeURIComponent(d.mac);\nreturn msg;",
+    "outputs": 1,
+    "x": 390,
+    "y": 80,
+    "wires": [
+      [
+        "i_dbg"
+      ]
+    ]
+  },
+  {
+    "id": "i_dbg",
+    "type": "debug",
+    "z": "intruder",
+    "name": "your notifier here",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "x": 620,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "i_http",
+    "type": "http in",
+    "z": "intruder",
+    "name": "",
+    "url": "/routerctl/approve",
+    "method": "get",
+    "x": 170,
+    "y": 180,
+    "wires": [
+      [
+        "i_mac"
+      ]
+    ]
+  },
+  {
+    "id": "i_mac",
+    "type": "change",
+    "z": "intruder",
+    "name": "mac from query",
+    "rules": [
+      {
+        "t": "set",
+        "p": "mac",
+        "pt": "msg",
+        "to": "req.query.mac",
+        "tot": "msg"
+      }
+    ],
+    "x": 380,
+    "y": 180,
+    "wires": [
+      [
+        "i_inv"
+      ]
+    ]
+  },
+  {
+    "id": "i_inv",
+    "type": "routerctl-inventory",
+    "z": "intruder",
+    "name": "approve",
+    "server": "rc_server",
+    "operation": "approve",
+    "mac": "",
+    "label": "",
+    "x": 560,
+    "y": 180,
+    "wires": [
+      [
+        "i_resp"
+      ]
+    ]
+  },
+  {
+    "id": "i_resp",
+    "type": "template",
+    "z": "intruder",
+    "name": "page",
+    "field": "payload",
+    "format": "html",
+    "syntax": "mustache",
+    "template": "<p>{{payload.mac}} ({{payload.name}}) is now known.</p>",
+    "output": "str",
+    "x": 720,
+    "y": 180,
+    "wires": [
+      [
+        "i_out"
+      ]
+    ]
+  },
+  {
+    "id": "i_out",
+    "type": "http response",
+    "z": "intruder",
+    "name": "",
+    "statusCode": "",
+    "headers": {},
+    "x": 870,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "rc_server",
+    "type": "routerctl-server",
+    "name": "routerctl",
+    "url": "http://routerctl:9100"
+  }
+]

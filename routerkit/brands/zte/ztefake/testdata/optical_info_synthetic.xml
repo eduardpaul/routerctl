@@ -1,0 +1,3 @@
+<?xml version="1.0"?>
+<!-- SYNTHETIC: optical_info_lua.lua is not visible to the "user" account; layout follows other ZTE F6xx/F8xx firmwares, unverified -->
+<ajax_response_xml_root><IF_ERRORPARAM>SUCC</IF_ERRORPARAM><IF_ERRORTYPE>SUCC</IF_ERRORTYPE><IF_ERRORSTR>SUCC</IF_ERRORSTR><IF_ERRORID>0</IF_ERRORID><OBJ_PON_OPTICALPARA_ID><Instance><ParaName>_InstID</ParaName><ParaValue>IGD</ParaValue><ParaName>RxPower</ParaName><ParaValue>-19.62</ParaValue><ParaName>TxPower</ParaName><ParaValue>2.31</ParaValue><ParaName>Temp</ParaName><ParaValue>47.5</ParaValue><ParaName>Volt</ParaName><ParaValue>3.28</ParaValue><ParaName>Current</ParaName><ParaValue>11.2</ParaValue></Instance></OBJ_PON_OPTICALPARA_ID></ajax_response_xml_root>

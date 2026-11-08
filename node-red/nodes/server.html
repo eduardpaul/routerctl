@@ -1,0 +1,52 @@
+<script type="text/javascript">
+  RED.nodes.registerType('routerctl-server', {
+    category: 'config',
+    defaults: {
+      name: { value: '' },
+      url: { value: 'http://routerctl:9100', required: true, validate: RED.validators.regex(/^https?:\/\/.+/i) },
+    },
+    credentials: {
+      token: { type: 'password' },
+    },
+    label: function () {
+      return this.name || this.url;
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="routerctl-server">
+  <div class="form-row">
+    <label for="node-config-input-url"><i class="fa fa-globe"></i> URL</label>
+    <input type="text" id="node-config-input-url" placeholder="http://routerctl:9100">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-token"><i class="fa fa-key"></i> Token</label>
+    <input type="password" id="node-config-input-token" placeholder="http.token of the daemon">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-config-input-name">
+  </div>
+  <div class="form-tips">
+    The daemon must run <code>routerctl watch</code> with <code>api.enabled: true</code>.
+    Off localhost it needs <code>http.token</code>: enter the same token here.
+  </div>
+</script>
+
+<script type="text/html" data-help-name="routerctl-server">
+  <p>A <code>routerctl watch</code> daemon with its HTTP API enabled.</p>
+  <h3>Properties</h3>
+  <dl class="message-properties">
+    <dt>URL <span class="property-type">string</span></dt>
+    <dd>Base URL of the daemon, e.g. <code>http://routerctl:9100</code> (Docker) or <code>http://127.0.0.1:9100</code>.</dd>
+    <dt>Token <span class="property-type">string</span></dt>
+    <dd>The daemon's <code>http.token</code> (sent as a bearer token). Stored as a Node-RED credential.</dd>
+  </dl>
+  <h3>Details</h3>
+  <p>Every node that uses this server shares one event stream. The stream
+  reconnects by itself and resumes where it left off, so events that happen
+  during a short disconnect are not lost (the daemon keeps the last 500).</p>
+  <p>The daemon owns the router session: Node-RED never logs in to the
+  router, and the daemon's command policy (<code>commands.max_danger</code>,
+  <code>api.max_danger</code>) decides which actions may run.</p>
+</script>

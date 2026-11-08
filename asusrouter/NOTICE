@@ -1,0 +1,15 @@
+routerctl
+Copyright 2026 Eduard Paul
+
+This product includes a Go translation of the asusrouter Python library
+(https://github.com/Vaskivskyi/asusrouter), licensed under the Apache
+License, Version 2.0. The NOTICE file of that library reads:
+
+    Copyright Yevhenii Vaskivskyi
+
+The Go module github.com/eduardpaul/routerctl/asusrouter (directory
+asusrouter/) is that translation. Its files were translated to Go from the
+Python sources and changed by Eduard Paul; the *_enums_gen.go files and
+register/register.go are generated from those sources by
+parity/gen_go_enums.py and parity/gen_go_register.py. The deliberate
+differences from the Python library are listed in asusrouter/PARITY.md.

@@ -1,0 +1,125 @@
+<script type="text/javascript">
+  (function () {
+    var TYPES = [
+      ['device_new', 'New device (not in the inventory)'],
+      ['device_online', 'Device online'],
+      ['device_offline', 'Device offline'],
+      ['device_ip_changed', 'Device IP changed'],
+      ['wan_down', 'Internet down'],
+      ['wan_up', 'Internet up'],
+      ['wan_ip_changed', 'Public IP changed'],
+      ['firmware_update', 'Firmware update available'],
+      ['node_offline', 'Mesh node offline'],
+      ['node_online', 'Mesh node online'],
+      ['action_done', 'An action ran'],
+    ];
+    RED.nodes.registerType('routerctl-event', {
+      category: 'routerctl',
+      color: '#7FB7DF',
+      defaults: {
+        name: { value: '' },
+        server: { value: '', type: 'routerctl-server', required: true },
+        mode: { value: 'event' },
+        types: { value: [] },
+        devices: { value: '' },
+        macs: { value: '' },
+        unknownOnly: { value: false },
+      },
+      inputs: 0,
+      outputs: 1,
+      icon: 'font-awesome/fa-bell',
+      label: function () {
+        if (this.name) return this.name;
+        if (this.mode === 'presence') return 'presence ' + (this.macs || 'all');
+        var t = this.types || [];
+        return t.length ? t.join(', ') : 'routerctl events';
+      },
+      paletteLabel: 'event',
+      oneditprepare: function () {
+        var node = this;
+        var box = $('#node-input-types-box');
+        var chosen = node.types || [];
+        TYPES.forEach(function (t) {
+          var id = 'node-input-type-' + t[0];
+          $('<div style="margin-left:105px"><label style="width:auto" for="' + id + '">' +
+            '<input type="checkbox" style="width:auto;margin:0 6px 0 0" id="' + id + '" value="' + t[0] + '">' +
+            t[1] + ' <code>' + t[0] + '</code></label></div>').appendTo(box);
+          $('#' + id).prop('checked', chosen.indexOf(t[0]) >= 0);
+        });
+        var toggle = function () {
+          var p = $('#node-input-mode').val() === 'presence';
+          $('#node-input-types-row').toggle(!p);
+        };
+        $('#node-input-mode').on('change', toggle);
+        toggle();
+      },
+      oneditsave: function () {
+        var types = [];
+        $('#node-input-types-box input:checked').each(function () { types.push($(this).val()); });
+        this.types = types;
+      },
+    });
+  })();
+</script>
+
+<script type="text/html" data-template-name="routerctl-event">
+  <div class="form-row">
+    <label for="node-input-server"><i class="fa fa-server"></i> Server</label>
+    <input type="text" id="node-input-server">
+  </div>
+  <div class="form-row">
+    <label for="node-input-mode"><i class="fa fa-random"></i> Output</label>
+    <select id="node-input-mode">
+      <option value="event">events</option>
+      <option value="presence">presence (home / not_home)</option>
+    </select>
+  </div>
+  <div class="form-row" id="node-input-types-row">
+    <label><i class="fa fa-filter"></i> Types</label>
+    <span>none checked = every event</span>
+    <div id="node-input-types-box"></div>
+  </div>
+  <div class="form-row">
+    <label for="node-input-devices"><i class="fa fa-wifi"></i> Routers</label>
+    <input type="text" id="node-input-devices" placeholder="router names, comma separated (empty = all)">
+  </div>
+  <div class="form-row">
+    <label for="node-input-macs"><i class="fa fa-laptop"></i> Clients</label>
+    <input type="text" id="node-input-macs" placeholder="MAC addresses, comma separated (empty = all)">
+  </div>
+  <div class="form-row">
+    <label for="node-input-unknownOnly"><i class="fa fa-user-secret"></i> Unknown</label>
+    <input type="checkbox" id="node-input-unknownOnly" style="width:auto">
+    <span>only clients that are not known (approved or labelled)</span>
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="routerctl-event">
+  <p>Emits routerctl events as they happen: new devices, presence, internet
+  down/up, public IP changes, firmware updates, mesh nodes, actions.</p>
+  <h3>Outputs</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">object | string</span></dt>
+    <dd>The event: <code>{id, type, time, device, summary, data}</code>.
+      <code>data</code> depends on the type; client events carry
+      <code>mac</code>, <code>name</code>, <code>ip</code>, <code>vendor</code>,
+      <code>known</code>. In presence mode: <code>"home"</code> or <code>"not_home"</code>.</dd>
+    <dt>topic <span class="property-type">string</span></dt>
+    <dd><code>&lt;router&gt;/&lt;type&gt;</code>, or <code>&lt;router&gt;/&lt;mac&gt;</code> in presence mode.</dd>
+    <dt>event <span class="property-type">object</span></dt>
+    <dd>Presence mode: the full event.</dd>
+    <dt>routerctl <span class="property-type">object</span></dt>
+    <dd><code>{id, type, device}</code> of the event.</dd>
+  </dl>
+  <h3>Details</h3>
+  <p><code>payload.summary</code> is a ready-made sentence ("New device on home:
+  visitor (02:00:00:00:20:06), IP 192.168.50.99") for notifications.</p>
+  <p>Presence is debounced by the daemon (<code>presence.offline_grace</code>), so a
+  phone that drops WiFi for a moment does not flap.</p>
+  <p>The status shows the connection to the daemon. Events that happen while
+  Node-RED is briefly disconnected are delivered when it reconnects.</p>
+</script>

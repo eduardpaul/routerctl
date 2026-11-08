@@ -1,0 +1,43 @@
+name: Upstream Python drift
+
+# Weekly: is the Go port still in parity with the newest Python library?
+# It only reports; to sync, follow asusrouter/PARITY.md "Sync with the
+# Python library".
+on:
+  schedule:
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parity:
+    name: Parity against the newest Python asusrouter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - name: Move the submodule to the newest dev
+        run: |
+          git submodule update --remote third_party/asusrouter-py
+          git -C third_party/asusrouter-py log --oneline -1
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.work
+          cache-dependency-path: |
+            go.work.sum
+            */go.sum
+
+      - uses: astral-sh/setup-uv@v7
+
+      - name: Install the Python side
+        run: uv sync --project parity
+
+      - name: Generated Go files still match
+        run: |
+          make gen
+          git diff --stat --exit-code -- asusrouter

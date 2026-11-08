@@ -1,0 +1,128 @@
+[
+  {
+    "id": "report",
+    "type": "tab",
+    "label": "Report",
+    "disabled": false,
+    "info": "Every morning: who is online, unknown devices, firmware updates. Uses routerctl-query; set the router name."
+  },
+  {
+    "id": "r_inj",
+    "type": "inject",
+    "z": "report",
+    "name": "08:00",
+    "props": [],
+    "repeat": "",
+    "crontab": "00 08 * * *",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 110,
+    "y": 100,
+    "wires": [
+      [
+        "r_cl"
+      ]
+    ]
+  },
+  {
+    "id": "r_cl",
+    "type": "routerctl-query",
+    "z": "report",
+    "name": "clients",
+    "server": "rc_server",
+    "what": "clients",
+    "device": "router",
+    "source": "",
+    "online": "",
+    "known": "",
+    "x": 270,
+    "y": 100,
+    "wires": [
+      [
+        "r_dev"
+      ]
+    ]
+  },
+  {
+    "id": "r_dev",
+    "type": "change",
+    "z": "report",
+    "name": "keep clients",
+    "rules": [
+      {
+        "t": "set",
+        "p": "clients",
+        "pt": "msg",
+        "to": "payload",
+        "tot": "msg"
+      },
+      {
+        "t": "set",
+        "p": "query",
+        "pt": "msg",
+        "to": "device",
+        "tot": "str"
+      }
+    ],
+    "x": 430,
+    "y": 100,
+    "wires": [
+      [
+        "r_st"
+      ]
+    ]
+  },
+  {
+    "id": "r_st",
+    "type": "routerctl-query",
+    "z": "report",
+    "name": "router state",
+    "server": "rc_server",
+    "what": "device",
+    "device": "router",
+    "source": "",
+    "online": "",
+    "known": "",
+    "x": 600,
+    "y": 100,
+    "wires": [
+      [
+        "r_fmt"
+      ]
+    ]
+  },
+  {
+    "id": "r_fmt",
+    "type": "function",
+    "z": "report",
+    "name": "report",
+    "func": "const c = msg.clients;\nconst s = msg.payload.state;\nconst unknown = c.filter(x => !x.known).map(x => x.name + ' (' + x.mac + ')');\nmsg.payload = [\n  c.filter(x => x.present).length + ' of ' + c.length + ' clients online',\n  'unknown: ' + (unknown.join(', ') || 'none'),\n  'WAN ' + (s.wan_connected ? 'up' : 'down') + ', public IP ' + (s.public_ip || s.wan_ip || '?'),\n  s.firmware_update ? 'firmware update: ' + s.firmware_available : 'firmware up to date',\n].join('\\n');\nreturn msg;",
+    "outputs": 1,
+    "x": 770,
+    "y": 100,
+    "wires": [
+      [
+        "r_dbg"
+      ]
+    ]
+  },
+  {
+    "id": "r_dbg",
+    "type": "debug",
+    "z": "report",
+    "name": "your notifier here",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "x": 960,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "rc_server",
+    "type": "routerctl-server",
+    "name": "routerctl",
+    "url": "http://routerctl:9100"
+  }
+]

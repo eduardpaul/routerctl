@@ -1,0 +1,124 @@
+<script type="text/javascript">
+  RED.nodes.registerType('routerctl-query', {
+    category: 'routerctl',
+    color: '#7FB7DF',
+    defaults: {
+      name: { value: '' },
+      server: { value: '', type: 'routerctl-server', required: true },
+      what: { value: 'clients' },
+      device: { value: '' },
+      source: { value: '' },
+      online: { value: '' },
+      known: { value: '' },
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: 'font-awesome/fa-search',
+    label: function () {
+      return this.name || ('get ' + this.what + (this.device ? ' ' + this.device : ''));
+    },
+    paletteLabel: 'query',
+    oneditprepare: function () {
+      var fill = function (path, list, map) {
+        var server = $('#node-input-server').val();
+        if (!server || server === '_ADD_') return;
+        $.getJSON('routerctl/' + server + '/' + path).done(function (items) {
+          var dl = $(list).empty();
+          (items || []).forEach(function (it) { $('<option>').attr('value', map(it)).appendTo(dl); });
+        });
+      };
+      var refresh = function () {
+        fill('devices', '#routerctl-query-devices', function (d) { return d.name; });
+        var dev = $('#node-input-device').val();
+        if (dev) fill('sources?device=' + encodeURIComponent(dev), '#routerctl-query-sources', function (s) { return s.name; });
+      };
+      var toggle = function () {
+        var w = $('#node-input-what').val();
+        $('#routerctl-query-source-row').toggle(w === 'source');
+        $('#routerctl-query-filters').toggle(w === 'clients' || w === 'inventory');
+      };
+      $('#node-input-server').on('change', refresh);
+      $('#node-input-device').on('change', refresh);
+      $('#node-input-what').on('change', toggle);
+      refresh();
+      toggle();
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="routerctl-query">
+  <div class="form-row">
+    <label for="node-input-server"><i class="fa fa-server"></i> Server</label>
+    <input type="text" id="node-input-server">
+  </div>
+  <div class="form-row">
+    <label for="node-input-what"><i class="fa fa-search"></i> Read</label>
+    <select id="node-input-what">
+      <option value="clients">clients of a router</option>
+      <option value="device">router state</option>
+      <option value="devices">all routers</option>
+      <option value="nodes">mesh nodes</option>
+      <option value="actions">actions of a router</option>
+      <option value="sources">native sources of a router</option>
+      <option value="source">a native source (brand data)</option>
+      <option value="inventory">device inventory</option>
+      <option value="info">daemon info</option>
+    </select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-device"><i class="fa fa-wifi"></i> Router</label>
+    <input type="text" id="node-input-device" list="routerctl-query-devices" placeholder="router name (or msg.device)">
+    <datalist id="routerctl-query-devices"></datalist>
+  </div>
+  <div class="form-row" id="routerctl-query-source-row">
+    <label for="node-input-source"><i class="fa fa-database"></i> Source</label>
+    <input type="text" id="node-input-source" list="routerctl-query-sources" placeholder="source name (or msg.source)">
+    <datalist id="routerctl-query-sources"></datalist>
+  </div>
+  <div id="routerctl-query-filters">
+    <div class="form-row">
+      <label for="node-input-online"><i class="fa fa-plug"></i> Online</label>
+      <select id="node-input-online">
+        <option value="">any</option><option value="true">online only</option><option value="false">offline only</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label for="node-input-known"><i class="fa fa-check"></i> Known</label>
+      <select id="node-input-known">
+        <option value="">any</option><option value="true">known only</option><option value="false">unknown only</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="routerctl-query">
+  <p>Reads from the routerctl daemon when a message arrives. The daemon answers
+  from its latest poll, so this is fast and never logs in to the router
+  (only <i>a native source</i> asks the router).</p>
+  <h3>Inputs</h3>
+  <dl class="message-properties">
+    <dt class="optional">query <span class="property-type">string</span></dt>
+    <dd>Overrides <i>Read</i>: <code>clients</code>, <code>device</code>, <code>devices</code>,
+      <code>nodes</code>, <code>actions</code>, <code>sources</code>, <code>source</code>,
+      <code>inventory</code>, <code>info</code>.</dd>
+    <dt class="optional">device <span class="property-type">string</span></dt>
+    <dd>Overrides the router name.</dd>
+    <dt class="optional">source <span class="property-type">string</span></dt>
+    <dd>Overrides the source name.</dd>
+    <dt class="optional">online / known <span class="property-type">boolean</span></dt>
+    <dd>Filters for clients and the inventory.</dd>
+  </dl>
+  <h3>Outputs</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">object | array</span></dt>
+    <dd>The answer. A client is <code>{mac, name, label?, ip, vendor, connection,
+      node, rssi, online, present, known, first_seen}</code>; <code>present</code> is the
+      debounced presence.</dd>
+  </dl>
+  <p>Errors go to a Catch node (<code>err.code</code>: <code>unknown_device</code>,
+  <code>not_found</code>, <code>unreachable</code>, ...).</p>
+</script>

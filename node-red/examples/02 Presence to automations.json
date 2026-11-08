@@ -1,0 +1,90 @@
+[
+  {
+    "id": "presence",
+    "type": "tab",
+    "label": "Presence",
+    "disabled": false,
+    "info": "A phone's presence (debounced by routerctl) switches things on arrival and departure. Set the MAC of your phone in the event node."
+  },
+  {
+    "id": "p_ev",
+    "type": "routerctl-event",
+    "z": "presence",
+    "name": "my phone",
+    "server": "rc_server",
+    "mode": "presence",
+    "types": [],
+    "devices": "",
+    "macs": "aa:bb:cc:dd:ee:ff",
+    "unknownOnly": false,
+    "x": 140,
+    "y": 100,
+    "wires": [
+      [
+        "p_sw"
+      ]
+    ]
+  },
+  {
+    "id": "p_sw",
+    "type": "switch",
+    "z": "presence",
+    "name": "home?",
+    "property": "payload",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "eq",
+        "v": "home",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "not_home",
+        "vt": "str"
+      }
+    ],
+    "checkall": "true",
+    "outputs": 2,
+    "x": 330,
+    "y": 100,
+    "wires": [
+      [
+        "p_home"
+      ],
+      [
+        "p_away"
+      ]
+    ]
+  },
+  {
+    "id": "p_home",
+    "type": "debug",
+    "z": "presence",
+    "name": "arrived: lights on",
+    "active": true,
+    "tosidebar": true,
+    "complete": "topic",
+    "x": 540,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "p_away",
+    "type": "debug",
+    "z": "presence",
+    "name": "left: heating eco",
+    "active": true,
+    "tosidebar": true,
+    "complete": "topic",
+    "x": 540,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "rc_server",
+    "type": "routerctl-server",
+    "name": "routerctl",
+    "url": "http://routerctl:9100"
+  }
+]
