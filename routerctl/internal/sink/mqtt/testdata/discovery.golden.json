@@ -1,0 +1,946 @@
+{
+  "homeassistant/binary_sensor/routerctl_home/firmware_update/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "device_class": "update",
+    "entity_category": "diagnostic",
+    "name": "Firmware update",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "state_topic": "routerctl/home/state",
+    "unique_id": "routerctl_home_firmware_update",
+    "value_template": "{{ 'ON' if value_json.firmware_update else 'OFF' }}"
+  },
+  "homeassistant/binary_sensor/routerctl_home/node_020000000001/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "device_class": "connectivity",
+    "json_attributes_topic": "routerctl/home/node/020000000001",
+    "name": "Node Living room",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "state_topic": "routerctl/home/node/020000000001",
+    "unique_id": "routerctl_home_node_020000000001",
+    "value_template": "{{ 'ON' if value_json.online else 'OFF' }}"
+  },
+  "homeassistant/binary_sensor/routerctl_home/node_020000000002/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "device_class": "connectivity",
+    "json_attributes_topic": "routerctl/home/node/020000000002",
+    "name": "Node Office",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "state_topic": "routerctl/home/node/020000000002",
+    "unique_id": "routerctl_home_node_020000000002",
+    "value_template": "{{ 'ON' if value_json.online else 'OFF' }}"
+  },
+  "homeassistant/binary_sensor/routerctl_home/wan/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "device_class": "connectivity",
+    "name": "WAN",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "state_topic": "routerctl/home/state",
+    "unique_id": "routerctl_home_wan",
+    "value_template": "{{ 'ON' if value_json.wan_connected else 'OFF' }}"
+  },
+  "homeassistant/button/routerctl_home/speedtest/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "command_topic": "routerctl/home/cmd/speedtest",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "name": "Speedtest",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "payload_press": "PRESS",
+    "unique_id": "routerctl_home_speedtest"
+  },
+  "homeassistant/device_tracker/routerctl_home/client_020000001001/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:10:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_client_020000001001"
+      ],
+      "manufacturer": "Acme",
+      "name": "Work laptop",
+      "via_device": "routerctl_home"
+    },
+    "icon": "mdi:lan-connect",
+    "json_attributes_topic": "routerctl/home/client/020000001001",
+    "name": null,
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "payload_home": "home",
+    "payload_not_home": "not_home",
+    "source_type": "router",
+    "state_topic": "routerctl/home/client/020000001001/presence",
+    "unique_id": "routerctl_home_client_020000001001"
+  },
+  "homeassistant/device_tracker/routerctl_home/client_020000001003/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:10:03"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_client_020000001003"
+      ],
+      "manufacturer": "Synology",
+      "name": "nas",
+      "via_device": "routerctl_home"
+    },
+    "icon": "mdi:lan-connect",
+    "json_attributes_topic": "routerctl/home/client/020000001003",
+    "name": null,
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "payload_home": "home",
+    "payload_not_home": "not_home",
+    "source_type": "router",
+    "state_topic": "routerctl/home/client/020000001003/presence",
+    "unique_id": "routerctl_home_client_020000001003"
+  },
+  "homeassistant/sensor/routerctl_home/clients_online/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "icon": "mdi:devices",
+    "name": "Clients online",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "state_class": "measurement",
+    "state_topic": "routerctl/home/state",
+    "unique_id": "routerctl_home_clients_online",
+    "value_template": "{{ value_json.clients_online }}"
+  },
+  "homeassistant/sensor/routerctl_home/cpu_usage/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "icon": "mdi:cpu-64-bit",
+    "name": "CPU usage",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "state_class": "measurement",
+    "state_topic": "routerctl/home/state",
+    "unique_id": "routerctl_home_cpu_usage",
+    "unit_of_measurement": "%",
+    "value_template": "{{ value_json.cpu_usage }}"
+  },
+  "homeassistant/sensor/routerctl_home/download_rate/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "device_class": "data_rate",
+    "name": "Download rate",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "state_class": "measurement",
+    "state_topic": "routerctl/home/state",
+    "unique_id": "routerctl_home_download_rate",
+    "unit_of_measurement": "B/s",
+    "value_template": "{{ value_json.rx_rate | round(0) }}"
+  },
+  "homeassistant/sensor/routerctl_home/downloaded/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "device_class": "data_size",
+    "name": "Downloaded",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "state_class": "total_increasing",
+    "state_topic": "routerctl/home/state",
+    "unique_id": "routerctl_home_downloaded",
+    "unit_of_measurement": "B",
+    "value_template": "{{ value_json.rx_bytes }}"
+  },
+  "homeassistant/sensor/routerctl_home/firmware_available/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "entity_category": "diagnostic",
+    "icon": "mdi:package-up",
+    "name": "Firmware available",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "state_topic": "routerctl/home/state",
+    "unique_id": "routerctl_home_firmware_available",
+    "value_template": "{{ value_json.firmware_available | default('', true) }}"
+  },
+  "homeassistant/sensor/routerctl_home/ram_usage/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "icon": "mdi:memory",
+    "name": "RAM usage",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "state_class": "measurement",
+    "state_topic": "routerctl/home/state",
+    "unique_id": "routerctl_home_ram_usage",
+    "unit_of_measurement": "%",
+    "value_template": "{{ value_json.ram_usage }}"
+  },
+  "homeassistant/sensor/routerctl_home/temperature_2_4ghz/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "device_class": "temperature",
+    "name": "Temperature 2.4ghz",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "state_class": "measurement",
+    "state_topic": "routerctl/home/state",
+    "unique_id": "routerctl_home_temperature_2_4ghz",
+    "unit_of_measurement": "°C",
+    "value_template": "{{ (value_json.temperature or {}).get(\"2.4ghz\") }}"
+  },
+  "homeassistant/sensor/routerctl_home/temperature_5ghz/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "device_class": "temperature",
+    "name": "Temperature 5ghz",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "state_class": "measurement",
+    "state_topic": "routerctl/home/state",
+    "unique_id": "routerctl_home_temperature_5ghz",
+    "unit_of_measurement": "°C",
+    "value_template": "{{ (value_json.temperature or {}).get(\"5ghz\") }}"
+  },
+  "homeassistant/sensor/routerctl_home/temperature_cpu/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "device_class": "temperature",
+    "name": "Temperature cpu",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "state_class": "measurement",
+    "state_topic": "routerctl/home/state",
+    "unique_id": "routerctl_home_temperature_cpu",
+    "unit_of_measurement": "°C",
+    "value_template": "{{ (value_json.temperature or {}).get(\"cpu\") }}"
+  },
+  "homeassistant/sensor/routerctl_home/upload_rate/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "device_class": "data_rate",
+    "name": "Upload rate",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "state_class": "measurement",
+    "state_topic": "routerctl/home/state",
+    "unique_id": "routerctl_home_upload_rate",
+    "unit_of_measurement": "B/s",
+    "value_template": "{{ value_json.tx_rate | round(0) }}"
+  },
+  "homeassistant/sensor/routerctl_home/uploaded/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "device_class": "data_size",
+    "name": "Uploaded",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "state_class": "total_increasing",
+    "state_topic": "routerctl/home/state",
+    "unique_id": "routerctl_home_uploaded",
+    "unit_of_measurement": "B",
+    "value_template": "{{ value_json.tx_bytes }}"
+  },
+  "homeassistant/sensor/routerctl_home/uptime/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "device_class": "duration",
+    "entity_category": "diagnostic",
+    "name": "Uptime",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "state_topic": "routerctl/home/state",
+    "unique_id": "routerctl_home_uptime",
+    "unit_of_measurement": "s",
+    "value_template": "{{ value_json.uptime }}"
+  },
+  "homeassistant/sensor/routerctl_home/wan_ip/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "icon": "mdi:ip-network",
+    "name": "WAN IP",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "state_topic": "routerctl/home/state",
+    "unique_id": "routerctl_home_wan_ip",
+    "value_template": "{{ value_json.wan_ip }}"
+  },
+  "homeassistant/switch/routerctl_home/block_020000001001/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "command_template": "{\"mac\":\"02:00:00:00:10:01\",\"state\":\"{{ value }}\"}",
+    "command_topic": "routerctl/home/cmd/block-client",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:10:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_client_020000001001"
+      ],
+      "manufacturer": "Acme",
+      "name": "Work laptop",
+      "via_device": "routerctl_home"
+    },
+    "icon": "mdi:web-cancel",
+    "name": "Block internet",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "payload_off": "off",
+    "payload_on": "on",
+    "state_off": "off",
+    "state_on": "on",
+    "state_topic": "routerctl/home/switch/block_020000001001",
+    "unique_id": "routerctl_home_block_020000001001"
+  },
+  "homeassistant/switch/routerctl_home/block_020000001003/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "command_template": "{\"mac\":\"02:00:00:00:10:03\",\"state\":\"{{ value }}\"}",
+    "command_topic": "routerctl/home/cmd/block-client",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:10:03"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_client_020000001003"
+      ],
+      "manufacturer": "Synology",
+      "name": "nas",
+      "via_device": "routerctl_home"
+    },
+    "icon": "mdi:web-cancel",
+    "name": "Block internet",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "payload_off": "off",
+    "payload_on": "on",
+    "state_off": "off",
+    "state_on": "on",
+    "state_topic": "routerctl/home/switch/block_020000001003",
+    "unique_id": "routerctl_home_block_020000001003"
+  },
+  "homeassistant/switch/routerctl_home/led/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "command_template": "{\"state\":\"{{ value }}\"}",
+    "command_topic": "routerctl/home/cmd/led",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "name": "Led",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "payload_off": "off",
+    "payload_on": "on",
+    "state_off": "off",
+    "state_on": "on",
+    "state_topic": "routerctl/home/switch/led",
+    "unique_id": "routerctl_home_led"
+  },
+  "homeassistant/switch/routerctl_home/wifi_2g1/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "command_template": "{\"band\":\"2g1\",\"state\":\"{{ value }}\"}",
+    "command_topic": "routerctl/home/cmd/wifi",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "name": "Wifi 2g1",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "payload_off": "off",
+    "payload_on": "on",
+    "state_off": "off",
+    "state_on": "on",
+    "state_topic": "routerctl/home/switch/wifi_2g1",
+    "unique_id": "routerctl_home_wifi_2g1"
+  },
+  "homeassistant/switch/routerctl_home/wifi_5g1/config": {
+    "availability": [
+      {
+        "topic": "routerctl/status"
+      },
+      {
+        "topic": "routerctl/home/availability"
+      }
+    ],
+    "availability_mode": "all",
+    "command_template": "{\"band\":\"5g1\",\"state\":\"{{ value }}\"}",
+    "command_topic": "routerctl/home/cmd/wifi",
+    "device": {
+      "connections": [
+        [
+          "mac",
+          "02:00:00:00:00:01"
+        ]
+      ],
+      "identifiers": [
+        "routerctl_home"
+      ],
+      "manufacturer": "Fake",
+      "model": "FAKE-1000",
+      "name": "home",
+      "serial_number": "FAKE0001",
+      "sw_version": "1.0.0"
+    },
+    "name": "Wifi 5g1",
+    "origin": {
+      "name": "routerctl",
+      "sw_version": "test"
+    },
+    "payload_off": "off",
+    "payload_on": "on",
+    "state_off": "off",
+    "state_on": "on",
+    "state_topic": "routerctl/home/switch/wifi_5g1",
+    "unique_id": "routerctl_home_wifi_5g1"
+  }
+}

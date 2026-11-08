@@ -1,0 +1,12 @@
+# routerctl for the Docker end-to-end test: the fake driver in demo mode
+# (a client goes offline and back, a visitor joins, the WAN drops).
+# The token comes from ROUTERCTL_HTTP_TOKEN; the image listens on :9100.
+devices:
+  - name: home
+    driver: fake
+    host: demo
+    intervals: {clients: 1s, wan: 1s, system: 1s, traffic: 1s, nodes: 1s, firmware: 1s}
+presence: {offline_grace: 1ms}
+api: {enabled: true}
+metrics: {enabled: true}
+log: {level: info, format: json}

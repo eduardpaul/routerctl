@@ -1,0 +1,483 @@
+{
+  "Capabilities": {
+    "actions": {
+      "omitempty": true,
+      "type": {
+        "list": {
+          "args": {
+            "omitempty": true,
+            "type": {
+              "list": {
+                "choices": {
+                  "omitempty": true,
+                  "type": {
+                    "list": "string"
+                  }
+                },
+                "default": {
+                  "omitempty": true,
+                  "type": "string"
+                },
+                "help": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "required": {
+                  "type": "bool"
+                },
+                "type": {
+                  "type": "routerkit.ArgType"
+                }
+              }
+            }
+          },
+          "async": {
+            "omitempty": true,
+            "type": "bool"
+          },
+          "danger": {
+            "type": "routerkit.Danger"
+          },
+          "help": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "standard": {
+            "omitempty": true,
+            "type": "bool"
+          },
+          "toggle": {
+            "omitempty": true,
+            "type": "string"
+          }
+        }
+      }
+    },
+    "features": {
+      "omitempty": true,
+      "type": {
+        "list": "routerkit.Feature"
+      }
+    },
+    "min_interval": {
+      "omitempty": true,
+      "type": "time.Duration"
+    },
+    "parts": {
+      "type": {
+        "map": "Part",
+        "of": {
+          "level": {
+            "type": "routerkit.Support"
+          },
+          "missing": {
+            "omitempty": true,
+            "type": {
+              "list": "string"
+            }
+          },
+          "note": {
+            "omitempty": true,
+            "type": "string"
+          }
+        }
+      }
+    },
+    "single_session": {
+      "omitempty": true,
+      "type": "bool"
+    },
+    "sources": {
+      "omitempty": true,
+      "type": {
+        "list": {
+          "help": {
+            "omitempty": true,
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "DriverInfo": {
+    "contract": {
+      "type": "string"
+    },
+    "help": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "stability": {
+      "type": "routerkit.Stability"
+    },
+    "variants": {
+      "omitempty": true,
+      "type": {
+        "list": "string"
+      }
+    },
+    "vendor": {
+      "type": "string"
+    }
+  },
+  "Identity": {
+    "firmware": {
+      "type": "string"
+    },
+    "hostname": {
+      "omitempty": true,
+      "type": "string"
+    },
+    "mac": {
+      "omitempty": true,
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "serial": {
+      "omitempty": true,
+      "type": "string"
+    },
+    "variant": {
+      "omitempty": true,
+      "type": "string"
+    },
+    "vendor": {
+      "type": "string"
+    }
+  },
+  "Invocation": {
+    "args": {
+      "type": {}
+    },
+    "name": {
+      "type": "string"
+    }
+  },
+  "Match": {
+    "driver": {
+      "type": "string"
+    },
+    "model": {
+      "omitempty": true,
+      "type": "string"
+    },
+    "reason": {
+      "omitempty": true,
+      "type": "string"
+    },
+    "score": {
+      "type": "int"
+    },
+    "variant": {
+      "omitempty": true,
+      "type": "string"
+    }
+  },
+  "OptionSpec": {
+    "choices": {
+      "omitempty": true,
+      "type": {
+        "list": "string"
+      }
+    },
+    "default": {
+      "omitempty": true,
+      "type": "string"
+    },
+    "help": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "routerkit.ArgType"
+    }
+  },
+  "Result": {
+    "accepted": {
+      "type": "bool"
+    },
+    "data": {
+      "omitempty": true,
+      "type": "interface {}"
+    },
+    "expect_disconnect": {
+      "omitempty": true,
+      "type": "bool"
+    },
+    "pending": {
+      "omitempty": true,
+      "type": "bool"
+    }
+  },
+  "Snapshot": {
+    "clients": {
+      "omitempty": true,
+      "type": {
+        "list": {
+          "connection": {
+            "omitempty": true,
+            "type": "string"
+          },
+          "extra": {
+            "omitempty": true,
+            "type": {
+              "map": "string",
+              "of": "interface {}"
+            }
+          },
+          "ip": {
+            "omitempty": true,
+            "type": "string"
+          },
+          "mac": {
+            "type": "string"
+          },
+          "name": {
+            "omitempty": true,
+            "type": "string"
+          },
+          "node": {
+            "omitempty": true,
+            "type": "string"
+          },
+          "online": {
+            "type": "bool"
+          },
+          "rssi": {
+            "omitempty": true,
+            "type": {
+              "ptr": "int"
+            }
+          },
+          "rx_rate": {
+            "omitempty": true,
+            "type": {
+              "ptr": "float64"
+            }
+          },
+          "since": {
+            "omitempty": true,
+            "type": {
+              "ptr": "time.Time"
+            }
+          },
+          "tx_rate": {
+            "omitempty": true,
+            "type": {
+              "ptr": "float64"
+            }
+          },
+          "vendor": {
+            "omitempty": true,
+            "type": "string"
+          }
+        }
+      }
+    },
+    "errors": {
+      "omitempty": true,
+      "type": {
+        "map": "Part",
+        "of": {
+          "code": {
+            "type": "routerkit.ErrCode"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "firmware": {
+      "omitempty": true,
+      "type": {
+        "ptr": {
+          "available": {
+            "omitempty": true,
+            "type": "string"
+          },
+          "current": {
+            "type": "string"
+          },
+          "update_available": {
+            "omitempty": true,
+            "type": {
+              "ptr": "bool"
+            }
+          }
+        }
+      }
+    },
+    "nodes": {
+      "omitempty": true,
+      "type": {
+        "list": {
+          "clients": {
+            "omitempty": true,
+            "type": {
+              "ptr": "int"
+            }
+          },
+          "ip": {
+            "omitempty": true,
+            "type": "string"
+          },
+          "mac": {
+            "type": "string"
+          },
+          "model": {
+            "omitempty": true,
+            "type": "string"
+          },
+          "name": {
+            "omitempty": true,
+            "type": "string"
+          },
+          "online": {
+            "type": "bool"
+          }
+        }
+      }
+    },
+    "system": {
+      "omitempty": true,
+      "type": {
+        "ptr": {
+          "cpu_usage": {
+            "omitempty": true,
+            "type": {
+              "ptr": "float64"
+            }
+          },
+          "extra": {
+            "omitempty": true,
+            "type": {
+              "map": "string",
+              "of": "interface {}"
+            }
+          },
+          "ram_usage": {
+            "omitempty": true,
+            "type": {
+              "ptr": "float64"
+            }
+          },
+          "temperatures": {
+            "omitempty": true,
+            "type": {
+              "map": "string",
+              "of": "float64"
+            }
+          },
+          "uptime": {
+            "omitempty": true,
+            "type": {
+              "ptr": "int64"
+            }
+          }
+        }
+      }
+    },
+    "time": {
+      "type": "time.Time"
+    },
+    "traffic": {
+      "omitempty": true,
+      "type": {
+        "list": {
+          "name": {
+            "type": "string"
+          },
+          "rx_bytes": {
+            "omitempty": true,
+            "type": {
+              "ptr": "uint64"
+            }
+          },
+          "rx_rate": {
+            "omitempty": true,
+            "type": {
+              "ptr": "float64"
+            }
+          },
+          "tx_bytes": {
+            "omitempty": true,
+            "type": {
+              "ptr": "uint64"
+            }
+          },
+          "tx_rate": {
+            "omitempty": true,
+            "type": {
+              "ptr": "float64"
+            }
+          }
+        }
+      }
+    },
+    "wan": {
+      "omitempty": true,
+      "type": {
+        "ptr": {
+          "connected": {
+            "type": {
+              "ptr": "bool"
+            }
+          },
+          "dns": {
+            "omitempty": true,
+            "type": {
+              "list": "string"
+            }
+          },
+          "extra": {
+            "omitempty": true,
+            "type": {
+              "map": "string",
+              "of": "interface {}"
+            }
+          },
+          "gateway": {
+            "omitempty": true,
+            "type": "string"
+          },
+          "ip": {
+            "omitempty": true,
+            "type": "string"
+          },
+          "ipv6": {
+            "omitempty": true,
+            "type": "string"
+          },
+          "protocol": {
+            "omitempty": true,
+            "type": "string"
+          },
+          "public_ip": {
+            "omitempty": true,
+            "type": "string"
+          },
+          "uptime": {
+            "omitempty": true,
+            "type": {
+              "ptr": "int64"
+            }
+          }
+        }
+      }
+    }
+  }
+}

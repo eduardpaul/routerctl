@@ -1,0 +1,174 @@
+[
+  {
+    "id": "wan",
+    "type": "tab",
+    "label": "WAN recovery",
+    "disabled": false,
+    "info": "When the internet stays down for 2 minutes, reconnect the WAN once. wan_up within the 2 minutes cancels it."
+  },
+  {
+    "id": "w_ev",
+    "type": "routerctl-event",
+    "z": "wan",
+    "name": "wan down / up",
+    "server": "rc_server",
+    "mode": "event",
+    "types": [
+      "wan_down",
+      "wan_up"
+    ],
+    "devices": "",
+    "macs": "",
+    "unknownOnly": false,
+    "x": 140,
+    "y": 100,
+    "wires": [
+      [
+        "w_sw"
+      ]
+    ]
+  },
+  {
+    "id": "w_sw",
+    "type": "switch",
+    "z": "wan",
+    "name": "",
+    "property": "payload.type",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "eq",
+        "v": "wan_down",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "wan_up",
+        "vt": "str"
+      }
+    ],
+    "checkall": "true",
+    "outputs": 2,
+    "x": 330,
+    "y": 100,
+    "wires": [
+      [
+        "w_trig"
+      ],
+      [
+        "w_reset"
+      ]
+    ]
+  },
+  {
+    "id": "w_reset",
+    "type": "change",
+    "z": "wan",
+    "name": "reset",
+    "rules": [
+      {
+        "t": "set",
+        "p": "reset",
+        "pt": "msg",
+        "to": "true",
+        "tot": "bool"
+      }
+    ],
+    "x": 470,
+    "y": 140,
+    "wires": [
+      [
+        "w_trig"
+      ]
+    ]
+  },
+  {
+    "id": "w_trig",
+    "type": "trigger",
+    "z": "wan",
+    "name": "2 min",
+    "op1": "",
+    "op2": "",
+    "op1type": "nul",
+    "op2type": "payl",
+    "duration": "2",
+    "extend": false,
+    "overrideDelay": false,
+    "units": "min",
+    "reset": "",
+    "bytopic": "all",
+    "topic": "topic",
+    "outputs": 1,
+    "x": 620,
+    "y": 100,
+    "wires": [
+      [
+        "w_dev"
+      ]
+    ]
+  },
+  {
+    "id": "w_dev",
+    "type": "change",
+    "z": "wan",
+    "name": "device from event",
+    "rules": [
+      {
+        "t": "set",
+        "p": "device",
+        "pt": "msg",
+        "to": "payload.device",
+        "tot": "msg"
+      },
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "{}",
+        "tot": "json"
+      }
+    ],
+    "x": 800,
+    "y": 100,
+    "wires": [
+      [
+        "w_act"
+      ]
+    ]
+  },
+  {
+    "id": "w_act",
+    "type": "routerctl-action",
+    "z": "wan",
+    "name": "reconnect-wan",
+    "server": "rc_server",
+    "device": "",
+    "action": "reconnect-wan",
+    "args": "",
+    "x": 990,
+    "y": 100,
+    "wires": [
+      [
+        "w_dbg"
+      ]
+    ]
+  },
+  {
+    "id": "w_dbg",
+    "type": "debug",
+    "z": "wan",
+    "name": "",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "x": 1170,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "rc_server",
+    "type": "routerctl-server",
+    "name": "routerctl",
+    "url": "http://routerctl:9100"
+  }
+]

@@ -1,0 +1,341 @@
+# Python ↔ Go parity
+
+`asusrouter/` is a file-by-file Go port of the
+[asusrouter](https://github.com/Vaskivskyi/asusrouter) Python library by
+Yevhenii Vaskivskyi, translated and changed by Eduard Paul (see
+[NOTICE](../NOTICE)). The Python library is the git submodule
+`third_party/asusrouter-py`, pinned to the commit the port is in parity
+with.
+
+## Check parity
+
+```sh
+git submodule update --init      # once
+make parity                      # every recorded session: Python vs Go, source by source
+make gen && git diff --exit-code # the generated Go files are up to date
+```
+
+## Sync with the Python library
+
+```sh
+cd third_party/asusrouter-py
+old=$(git rev-parse HEAD)
+git fetch origin && git checkout origin/dev
+git diff --stat "$old"..HEAD -- asusrouter/      # what changed: port these files
+cd ../..
+make gen                                         # enums and the source registry
+# port the hand-written files (same relative path, see Layout)
+make parity test
+git add third_party/asusrouter-py asusrouter parity/fixtures
+git commit -m "asusrouter: sync with Python asusrouter <short sha>"
+```
+
+- The submodule bump and the Go port go in the same commit.
+- The pinned commit must be pushed to the fork, or nobody else can check
+  it out.
+- To port an unmerged Python fix, check out that branch in the submodule,
+  port the change, and pin the merged commit afterwards.
+
+## Record a session
+
+```sh
+uv run --project parity python parity/py_harness.py capture parity/local/<device>/session.jsonl   # Python
+routerctl capture parity/local/<device>/session.jsonl                                              # Go
+parity/check.sh parity/local/<device>/session.jsonl                                                # creates py.json
+```
+
+- Sessions from a real device contain secrets: keep them in
+  `parity/local/` (git-ignored).
+- Committed fixtures live in `parity/fixtures/` and must be sanitized:
+
+  ```sh
+  uv run --project parity python parity/sanitize.py <in> <out>
+  ```
+
+## Layout
+
+The port mirrors the Python package one to one, at the same relative
+path: Python `third_party/asusrouter-py/asusrouter/connection.py` is Go
+`asusrouter/connection.go`, and `.../modules/<pkg>/<sub>/` is
+`asusrouter/modules/<pkg>/<sub>/`. In the tables below, Python paths are
+relative to `third_party/asusrouter-py/`. The Go module is
+`github.com/eduardpaul/routerctl/asusrouter`. Its only in-repo dependency
+is `netkit` (`netkit/tlspin`). Two names differ:
+
+| Python | Go |
+|---|---|
+| `asusrouter/const.py` | `asusrouter/consts/consts.go` (`const` is a Go keyword) |
+| `asusrouter/error.py` | `asusrouter/arerror/error.go` (avoids clashing with stdlib `errors`) |
+
+Go-only paths, with no Python file:
+
+| Go | What |
+|---|---|
+| `asusrouter/parity/canonical/` | the canonical form of `parity/py_harness.py` |
+| `asusrouter/parity/replay/` | the session replay of `parity/py_harness.py` |
+| `asusrouter/cmd/parity/` | the Go side of `parity/check.sh` |
+| `asusrouter/register/` | generated, see below |
+| `asusrouter/go.mod`, `arch_test.go`, `LICENSE`, `NOTICE` | the module file, its import-rule test (the same in every module, see `docs/development.md`) and the license files |
+| `asusrouter/transport_replay.go`, `tls_pin.go` | the replay transport; a thin wrapper over `netkit/tlspin` (see "Deliberate deviations") |
+| `asusrouter/identity_sync.go` | the identity wiring part of `asusrouter.py` (`_commit_data_state`, `_sync_clock`, ...), kept in its own file |
+| `asusrouter/tools/converters/{pystr,datetime}.go`, `tools/readers/{literal,pyjson}.go` | the Python builtins the converters and readers rely on (`str`/`int`/`float`, `datetime.fromisoformat`, `ast.literal_eval`, `json.loads`) |
+| `asusrouter/**/internal/`, `modules/device/devicetest/` | Go-only helpers and test helpers |
+
+`parity/check_layout.py` (run by `parity/check.sh`) enforces this: every
+Go directory and file must map to a Python package or file, through the
+rule, the two renames, the split packages below, or this Go-only list
+(its allowlist).
+
+- **Package per Python package, file per Python file**: Python
+  `modules/wifi/enums.py` becomes Go `modules/wifi/enums.go`. A Python
+  `__init__.py` with real code becomes `<pkg>.go`.
+- **Import-cycle exception.** Go forbids the import cycles that Python
+  hides behind `TYPE_CHECKING`. The device identity
+  (`modules/device`) imports `aimesh`, `common`, `firmware`, `nvram`,
+  `ports`, `support` and `wifi`. In those packages only, any file that
+  needs the identity or the registry (usually `source.py`, `action.py`,
+  `probe.py`) becomes a **subpackage named after the file**: Python
+  `modules/wifi/source.py` becomes Go `modules/wifi/source/source.go`.
+  Every other package keeps its `source.go` / `action.go` alongside its
+  models. Each split is listed in the table at the end of this file.
+- `asusrouter/register/` blank-imports every module so `init()` registration runs.
+  It plays the role of `load_all_sources()` in Python, and is generated by
+  `make gen` (re-run it after adding a module).
+
+## Naming
+
+**Enums are generated, not hand-written.** `make gen`
+turns every `Enum` under `asusrouter/modules` into
+`asusrouter/modules/<pkg>/<pyfile>_enums_gen.go` (`enums.py` becomes `enums_gen.go`).
+Each generated enum has its members and values, a `Members` slice, `Name()`,
+`Valid()`, `<Enum>FromValue(any)` (the same resolution as the Python
+`FromStrMixin` / `FromIntMixin`, falling back to `UNKNOWN`) and
+`<Enum>FromValueOK`. `ARDataType` subclasses also implement the data-source
+interface. After changing an enum in Python, regenerate; never edit a
+`*_gen.go` file by hand.
+
+**Go package names** are the directory name with underscores removed:
+`modules/port_forwarding` is package `portforwarding`.
+
+| Python | Go | Example |
+|---|---|---|
+| class | same name, exported | `ARWiFiSource` → `ARWiFiSource` |
+| enum member | `<Enum>` + each `_` part capitalized | `ARWiFiBand.BAND_2G1` → `ARWiFiBandBand2g1` |
+| `StrEnum` | `type X string` with the **same values** | `ARWiFiBandBand2G1 X = "2g1"` |
+| `IntEnum` | `type X int` with the **same values** | |
+| `UNKNOWN` member | `<Enum>Unknown`; `from_value` → `<Enum>FromValue(any) <Enum>` | |
+| public function | `PascalCase` | `raw_to_int` → `RawToInt` |
+| private function (`_x`) | `camelCase` | `_translate_band` → `translateBand` |
+| module constant | `PascalCase` if public, `camelCase` if private | `_DIAG_DB` → `diagDB` |
+| dataclass field | exported field with `json:"<python name>"` | `bound_node` → `BoundNode *string \`json:"bound_node"\`` |
+| universal instance | package var with the same name | `ARWiFiSourceUniversal` |
+
+Keep the Python order of functions and constants inside each file, and
+keep the Python comments, so side-by-side diffs line up.
+
+## Types
+
+- **`Optional[T]` / `T | None`** becomes `*T`; `None` is `nil` and
+  canonicalizes to `null`.
+- **Parsed router data** (output of the readers) is untyped and mirrors
+  Python's `json.loads`: `map[string]any`, `[]any`, `string`, `int64`
+  (integral literals), `float64`, `bool`, `nil`. Use the
+  `tools/converters` helpers (`RawToInt`, `RawToStr`, `RawToBool`, ...),
+  which keep the exact Python semantics and return pointers (`nil` means
+  `None`).
+- **Results are typed**: Go structs for dataclasses, typed maps for
+  dicts (`map[ARWiFiBand]map[ARWiFiField]any`, ...).
+- **Sensitive identifiers** (`MacAddress`, `IpAddress`, `Ssid`,
+  `Password`, ...) live in `tools/identifiers`. They implement
+  `CanonicalValue() any` (the raw value) and `slog.LogValuer` (masked).
+- **Naive `datetime`** becomes `time.Time` in `consts.NaiveLocation`.
+  Aware `datetime` becomes `time.Time` with a fixed zone.
+
+## Canonical form
+
+This is the shared output format for parity checks, implemented by
+`parity/py_harness.py:canonical` and `asusrouter/parity/canonical`:
+
+- enum → its value (string or int)
+- sensitive identifier → raw string
+- dataclass / struct → object keyed by the Python field names (the Go
+  `json` tags)
+- non-dataclass object → object of its public properties
+- `datetime` → `isoformat()`; `timedelta` → seconds
+- dict / map → object with stringified, sorted keys
+- list / tuple / slice → list; set → sorted list
+- float → int when integral, otherwise rounded to 6 decimals
+- `None` / nil pointer → `null`; a nil slice or map → `[]` / `{}`
+
+A Go type can override all of this by implementing `CanonicalValue() any`.
+
+## Seams
+
+Both libraries share one seam so sessions can be recorded and replayed
+identically: **`Connection.async_query(endpoint, payload, request_type)`
+→ `(status, headers, body)`** (Go: `Transport.Query`). Login and logout
+happen beneath it. A 404 is recorded as status 404, and replay answers
+unknown requests with a 404. Payloads are normalized for matching:
+`ts=<n>` becomes `ts=*`, and `hook=` items are sorted.
+
+## Split packages (import-cycle exception)
+
+| Python file | Go package |
+|---|---|
+| `asusrouter/tools/security/log.py` | `asusrouter/tools/security/log/` (`config` needs `security`, `log.py` needs `config`) |
+| (fill in as packages are ported) | |
+| `asusrouter/modules/aimesh/source.py` | `asusrouter/modules/aimesh/source/` |
+| `asusrouter/modules/firmware/source.py` | `asusrouter/modules/firmware/source/` |
+| `asusrouter/modules/ports/source.py` | `asusrouter/modules/ports/source/` |
+| `asusrouter/modules/wifi/source.py`, `wifi/action.py` | `asusrouter/modules/wifi/source/`, `asusrouter/modules/wifi/action/` |
+| `asusrouter/modules/device/source.py` | `asusrouter/modules/device/source/` (`device/recovery.py` stays in `device`: `ARDeviceIdentity.build` calls it, and it needs no registry) |
+| `asusrouter/modules/nvram/source.py` | Split in two: `ARNvramIndexSource`, the item helpers and `translate_state` stay in `asusrouter/modules/nvram/source.go` (the identity uses them); `fetch_state`, `async_fetch_values` / `async_get_value` / `async_expire_values` and the registration go to `asusrouter/modules/nvram/source/` |
+| `asusrouter/modules/support/__init__.py` (source part) and the translators `support/{ai,aimesh,aura,connection,credentials,device,dsl,firmware,ftp,lan,parental_control,platform,sdn,speedtest,usb,vpn,wan,wifi}.py` | `asusrouter/modules/support/source/` (one Go file per Python file). They import modules that register sources (`wan`, `vpn`, `network`, ...), which the identity cannot depend on. `support` keeps `flag.py`, `helpers.py` and the `ARSupportSource` type (`support.go`), which the identity is keyed by |
+| `asusrouter/modules/ports/{legacy,status}.py` | Stay in `ports` (`aimesh` needs `read_ethernet_port_speed`); their `identity` parameter is the narrow interface `ports.Identity` (`Mac()`), not `*device.ARDeviceIdentity` |
+| `asusrouter/modules/traffic/source.py` | `asusrouter/modules/traffic/source/` (`source` imports `traffic/aimesh` and `traffic/interface`, which import `traffic`) |
+| `asusrouter/modules/speedtest/source.py` | `asusrouter/modules/speedtest/source/` (`source` imports `speedtest/history`, which imports `speedtest`) |
+| `asusrouter/modules/log/source.py` | `asusrouter/modules/log/source/` (`source` imports `log/query`, which imports `log`) |
+| `asusrouter/modules/vpn/server/{openvpn,wireguard}.py`, `vpn/client/{classic,fusion}.py` | `asusrouter/modules/vpn/server/{openvpn,wireguard}/`, `asusrouter/modules/vpn/client/{classic,fusion}/`. Not a cycle: the sibling backends share function names (`nvram_items`, `translate`, `build_toggle_payload`), and each backend needs only `vpn`, so it becomes a subpackage named after the file and the call sites read like Python (`openvpn.Translate`). `fusion._WG` is exported as `fusion.WG` because `classic.py` imports it |
+| `asusrouter/modules/network/{legacy,sdn}.py` | Stay in `network` with the file name as a prefix on the colliding public names (`LegacyFetch`, `LegacyTranslate`, `LegacyBuildTogglePayload`, `SdnFetch`, `SdnFetchSdnRl`, `SdnTranslate`, `SdnBuildTogglePayload`). Subpackages are impossible here: the backends need the `network` enums and `ARNetworkHandle`, and `network/source.go` imports the backends |
+
+## Not ported (yet)
+
+| Python | Reason |
+|---|---|
+| (fill in) | |
+| `modules/{ddns,ping,ping/targets,parental_control,parental_control/block_all,parental_control/schedule,speedtest,speedtest/history,speedtest/servers,system_status,traffic,traffic/aimesh,traffic/interface}/__init__.py` | Re-exports only. `speedtest`, `traffic` and `parental_control` cannot import their subpackages (cycle): import `speedtest/{source,history,servers}`, `traffic/{source,aimesh,interface}` and `parental_control/{block_all,schedule}` directly. `ddns/enums.py` `ACTIVE_STATUSES` lives in `ddns/enums.go` |
+| `modules/traffic/interface/` package name | Not a gap, a naming rule: `interface` is a Go keyword, so the package is `trafficinterface` (directory unchanged) |
+| `modules/traffic`, `modules/speedtest`, `modules/ping`, `modules/ddns`, `modules/parental_control`, `modules/system_status` probes | None exist in Python, nothing to skip |
+| `speedtest.models.build_history_request` key order | Go maps lose the device's key order, so each re-written history entry is serialized with sorted keys (values are rendered like `json.dumps`). Semantically equal; byte-different from Python when a run is saved (`refresh` + `save`) |
+| `ping.targets` `ARPingTarget(name, "1.1.1.1")` (str IP) | Go types `ARPingTarget.IP` as `IpAddress`, so a str-IP target cannot be built; `_normalize` handles the IP / str / target inputs only |
+| `parental_control.schedule.timemap` `frozenset[ARWeekday]` | `WeekdaySet` (map-backed set, canonical form is the sorted list) |
+| `modules/log/probe.py` | Probes are out of scope of the log port |
+| `modules/log/__init__.py`, `modules/log/query/__init__.py`, `modules/log/translate/__init__.py`, `modules/{led,sysinfo,temperature}/__init__.py` | Re-exports only. Go cannot re-export, and `log` cannot import `log/query` or `log/source` (cycle): import those packages directly |
+| `modules/log`: Python `re` on str patterns is Unicode-aware, RE2 is not | Not a gap: `modules/log/internal/pyre` (Go-only) rewrites `\d`, `\w`, `\s`, `$` so the pattern text stays byte-identical to Python, and `pyre.Int` takes Unicode digits like `int()` |
+| Module-level names of `modules/log/translate/*.py` | Not a gap, a naming rule: the 23 modules share one Go package, so `kernel.PATTERNS` is `KernelPatterns` and a private `_CLIENT` of `band_steering_daemon.py` is `bandSteeringClient`. Converters carry the reveal level Python reads off `X.from_value_safe` (`translate.FromValueSafe`) |
+| `str.casefold` in `ARLogContains` | Go has simple case folding only: `lower(upper(c))` plus `ß`/`ẞ` → `ss`. Other full foldings (ligatures, `İ`, Cherokee) differ |
+| `group()` key collisions across value types (`modules/log/query/engine.py`) | Python dict keys merge equal-hashing values (a `StrEnum` and its str, `True` and `1`); Go merges the same through `pyKey`, but `Hostname`/`Serial` keys are not merged with plain strings |
+| `tools/dump/writer.py` | Needs `ARDeviceIdentity`, `ARFirmware` and data sources from `modules`; `tools/dump` only has the recorder |
+| `tools/probe/writer.py` | Needs `ARDeviceIdentity` from `modules`; `tools/probe` only has `redact.py` and `report.py` |
+| `tools/security/log.py` → `asusrouter/tools/security/log/` | Ported, but as a subpackage: it needs `config`, which needs `security.ARSecurityLevel`. The Python filter + passive handler become the `slog.Handler` wrapper `SensitiveHandler` |
+| Integers beyond int64 (`converters`, `readers` JSON and literal parsers, netdev counters) | Python ints are unbounded. Go gives nil from `RawToInt*`, `float64` from the parsers, and skips the netdev entry |
+| Sub-second UTC offsets in `raw_to_datetime` | Go zones have whole seconds, so the fraction is dropped |
+| Unicode digits in `int()` / `float()` (`RawToInt`, `RawToFloat`, `WiFiInterface`) | Go accepts ASCII digits only |
+| `ast.literal_eval` corner cases in `read_js_variables`: `\N{...}` escapes, `...`, tuple/bytes/unhashable dict keys | The Go literal parser rejects them, so the raw text fallback applies |
+| `modules/{port_forwarding,aura,credentials,service,ai}/__init__.py` | Re-exports only; nothing to port (`ai/__init__.py` is the `ARAICapability` enum, generated in `ai_enums_gen.go`) |
+| `modules/{aimesh,firmware,nvram,ports,wifi,device,clock,common}/__init__.py` | Re-exports only. `aimesh`, `firmware`, `nvram`, `ports`, `support`, `wifi` and `device` cannot import their `source`/`action` subpackages (cycle): import those directly |
+| `asusrouter/modules/common/region.py` `ARRegion`/`translate_region`, `vendor.py` | Ported as `common.TranslateRegion` / `common.FormatVendor` (`*string` in and out) |
+| Dict iteration order of parsed router JSON (`aimesh` `band_info` / capability 26 `vif` / 27-28 ports, `ports` `port_info` labels, legacy `portSpeed` labels, USB `devices`) | Python iterates in document order; Go maps lose it. Go rebuilds it: aimesh keys in natural (numeric-aware) order, port labels WAN, LAN, USB, AI by index (`portLabelOrder` / `legacyLabelOrder`), USB devices by position. Matches the firmware's order on the recorded sessions; a firmware that lists them otherwise gives a different list order than Python |
+| `ARDeviceIdentity.build` sharing the support dict | Python keeps the support source's dict and lets recovery update it in place; Go keeps a shallow copy (and copies `wifi_capabilities` before recovering), so the support source content never changes under a concurrent reader. Same identity output |
+| `ARDeviceIdentity.wifi` insertion order | `Wifi()` is a map; `WifiBands()` (Go addition) gives the Python order, used to build the WiFi request |
+| `ARBoottime` (a `datetime` subclass) | `clock.ARBoottime{time.Time}`; `ARBoottimeFromDatetime` rejects a naive time with an error instead of `ValueError` |
+| `_translate_revision` / `ARFirmware.revision` `int \| str \| None` | `any` holding `nil`, `int` or `string` |
+| `ARAiMeshTopology.nodes` order | `Nodes` is a map; the insertion order is kept privately (`Add`, `Macs()`, `Root()`, `Children()`, ... follow it). Build topologies with `TranslateTopology` or `NewARAiMeshTopology` + `Add` |
+| `modules/{aimesh,nvram,ports,wifi,device,firmware,support,clock,platform}/probe.py` | None exist in Python, nothing to skip |
+| `modules/{vpn,vpn/server,vpn/client,network,wan,clients,clients/count,dsl}/__init__.py` | Re-exports only. `vpn` cannot import `vpn/{server,client}` and `clients` cannot import `clients/count` (cycle): import those directly. `lan`, `ftp`, `connection` `__init__.py` are only enums (generated); `usb/__init__.py` is `asusrouter/modules/usb/usb.go` |
+| `modules/{vpn,network,wan,clients,dsl,lan,connection,ftp,usb}` probes | None exist in Python, nothing to skip |
+| `ARUSBDevice` `__eq__` / `__hash__` (`compare=False` fields) | `Equal()` and the comparable `IdentityKey()` (serial + raw manufacturer); `==` on the struct compares every field |
+| `clients.translate` dict iteration order (`mlo_links`, database `mlo_*_mac` fields, clientlist MAC keys) | Parsed JSON objects lose document order, so Go iterates them by sorted key. Only the order of MLO `links` can differ from Python (on firmware that does not list radios in sorted order); the client map itself is keyed |
+| `ARClientsCountSource` repr | `source.Repr` gives `<ARClientsCountSource (None)>` where Python prints `(None,)` (tuple repr) |
+| `urllib.parse.unquote` (WireGuard peer fields) | Local helper in `vpn/server/wireguard`: `%XX` decoded as UTF-8, invalid escapes kept; invalid UTF-8 is replaced per byte, which can differ from CPython on truncated multi-byte sequences |
+| Python keyword defaults on actions (`unit=1`) and `X \| None` returns of `build_toggle_payload` | `NewARVpnServerAction(protocol, state, unit)` / `NewARVpnClientAction(...)` (`unit <= 0` means 1); payload builders return `(services, arguments, ok)` with `arguments` as ordered `[][2]any` |
+| Input validation of `<`, `>`, `;` in `port_forwarding` rule fields (name, ports, IPs) and `service` names / argument values | **Security TODO for both sides.** These characters are the nvram row/column (`<`, `>`) and `rc_service` (`;`) separators, so user-supplied values can inject extra rules or services. Python accepts them today; Go keeps the same behaviour for parity. Add validation in Python and Go together |
+
+## Framework API for module ports
+
+Read `asusrouter/registry/registry.go`, `asusrouter/modules/source/source.go`,
+`asusrouter/modules/action/action.go` and `asusrouter/modules/endpoint/*.go` first.
+
+**A source** (Python `class ARXSource(ARDataSource)` plus
+`ARCallReg.register_source(...)`):
+
+```go
+type ARXSource struct {
+	source.Base             // for router-global sources (empty _key)
+	// defining fields (Python __init__ args) ...
+}
+func (ARXSource) SourceName() string { return "ARXSource" }
+// sources with a Python _key() also implement SourceKey() []any
+
+var ARXSourceUniversal = &ARXSource{}   // when Python has a universal instance
+
+func fetchState(ctx context.Context, c *registry.Context, src source.DataSource) (any, error) { ... }
+func translateState(raw any, tc *registry.TranslateContext) any { ... }
+
+func init() {
+	registry.RegisterSource(registry.SourceEntry{
+		Name:      "ARXSource",
+		Default:   func() source.DataSource { return &ARXSource{} }, // nil if Python's ctor needs args
+		Fetch:     fetchState,
+		Translate: translateState,
+	})
+}
+```
+
+- Always use pointer receivers / pointer instances for sources.
+  `src.(*ARXSource)` is how a fetcher reads its fields.
+- Python `callback(endpoint=..., request=...)` becomes
+  `c.Read(ctx, endpoint.AREndpointX, request)`, which returns the parsed
+  `any` (usually `map[string]any`).
+- Python `await fetch_data_callback(OtherSourceUniversal)` returns a dict;
+  Go `c.FetchData(ctx, other.OtherSourceUniversal, nil)` returns that
+  source's content directly. With a collection (`fetch_data_callback(
+  DEVICE_REQUEST)`, `async_fetch_values`) use `c.FetchDataMulti(ctx,
+  srcs, nil)`, which returns `map[source.ID]any` and batches multicaller
+  sources into one request like Python.
+- `kwargs.get("refresh")` becomes `c.Kwargs.Bool("refresh")`; `identity` is
+  `c.Identity` (or `tc.Identity`); `previous` is `tc.Previous`.
+- If Python inherits callables through a subclass (MRO), register the
+  same functions under the subclass name too.
+- Translators return typed Go values (structs, typed maps). Return a nil
+  map (or an empty one) where Python returns `{}`; both canonicalize to
+  `{}`.
+
+**An action** (Python `class ARXAction(ARAction)` plus `register_action`):
+the type implements `ActionName() string` and `ActionKey() []any`
+(embed `action.Base` when it has no key), and it is registered with
+`registry.RegisterAction(registry.ActionEntry{Name, Run, Translate})`.
+
+**Device identity** (Python `ARDeviceIdentity`, Go `*device.ARDeviceIdentity`):
+Python properties become methods. It is safe for concurrent use:
+
+```go
+Brand() string; Firmware() *firmware.ARFirmware /* never nil */; Mac() *identifiers.MacAddress
+Model() *string; ModelOriginal() *string; OperationMode() common.AROperationMode; Serial() *string
+Support() map[support.ARSupportType]any; Wifi() map[wifi.ARWiFiBand]int; WifiByUnit() map[int]wifi.ARWiFiBand
+Aimesh() *aimesh.ARAiMeshTopology /* never nil */; Username() *identifiers.Username
+UpdateUsername(*identifiers.Username); UpdateAimesh(*aimesh.ARAiMeshTopology)
+Boottime() *time.Time; UpdateBoottime(*time.Time); Uptime() *int; UpdateUptime(*int)
+DeviceTime() *time.Time; UpdateDeviceTime(*time.Time)
+Rebooted() bool; MarkReboot(); ClearRebooted()
+ARDeviceIdentityBuild(data IdentityData) *ARDeviceIdentity; NewARDeviceIdentity() *ARDeviceIdentity
+```
+
+**Tests**
+- Port the Python tests in `tests/modules/<pkg>/` to Go table tests.
+- Also add a session-replay test per source: the helpers in
+  `asusrouter/parity/replay` (`LocalDevices`, `Load`, `Session.Read`,
+  `Session.FetchRaw`, `LoadGolden`, `Diff`) let a test run
+  `fetchState` + `translateState` on every recorded session and compare
+  the result with `py.json[<SourceName>]`. Call `t.Skip` when there are
+  no sessions. The recorded identity is `py.json["_identity"]`; build it
+  with the device package, or use `ARDeviceIdentityBuild` from the
+  recorded replies.
+
+## Deliberate deviations (Go only)
+
+These come from the security review of the Python library. Each one only
+tightens behaviour; none of them changes parsed data. They are candidates
+to port back to Python.
+
+| Area | Python | Go |
+|---|---|---|
+| Response size | unbounded `response.text()` | capped at 32 MiB (`maxResponseBytes`) |
+| Regex parsers | backtracking `re` (some patterns quadratic) | RE2 (linear time) |
+| Redirects | followed (307/308 replay the POST body) | never followed |
+| HTTPS → HTTP fallback | allowed with `ALLOW_FALLBACK` (after a certificate failure or a dial failure) | same as Python, **unless a CA pool or pin is configured**: then a pinned/CA-verified link never drops to plaintext (certificate *or* dial failure) |
+| Concurrent fallback | one asyncio task at a time | transitions are serialized and versioned: a request that failed on a config another request already replaced resends on the current config (after that request's re-login) instead of advancing the fallback again |
+| TLS verification | on/off only | also `RootCAs` and `PinnedCertSHA256` (trust-on-first-use friendly); both together check the CA chain, hostname, expiry *and* the pin (`netkit/tlspin`, shared with the ZTE library; `tls_pin.go` is a thin wrapper). Python has no `tools/tlspin`: the package lives in the brand-neutral `netkit` tree, outside the port's layout |
+| Credentials refusal | latched until `async_set_credentials` | same latch, plus `Connection.ClearCredentialsRefused` / `AsusRouter.Reconnect` for an explicit reconnect (used by `routerctl watch` after 3 failed polls, at backoff rate) |
+| Debug payload logging | `applyapp.cgi` payloads logged raw (can include the DDNS password) | write payloads are always redacted |
+| Non-ASCII credentials | `UnicodeEncodeError` that echoes the password | a plain error without the value |

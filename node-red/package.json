@@ -1,0 +1,58 @@
+{
+  "name": "@eduardpaul/node-red-routerctl",
+  "version": "0.1.0",
+  "description": "Node-RED nodes for routerctl: router events (new device, presence, internet down), queries, actions and the device inventory for ASUS, ZTE and more",
+  "keywords": [
+    "node-red",
+    "router",
+    "asus",
+    "asuswrt",
+    "zte",
+    "presence",
+    "network",
+    "home-automation"
+  ],
+  "license": "Apache-2.0",
+  "author": "Eduard Paul",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eduardpaul/routerctl.git",
+    "directory": "node-red"
+  },
+  "homepage": "https://github.com/eduardpaul/routerctl/tree/main/node-red#readme",
+  "bugs": {
+    "url": "https://github.com/eduardpaul/routerctl/issues"
+  },
+  "files": [
+    "lib/",
+    "nodes/",
+    "examples/",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "main": "lib/client.js",
+  "node-red": {
+    "version": ">=4.0.0",
+    "nodes": {
+      "routerctl-server": "nodes/server.js",
+      "routerctl-event": "nodes/event.js",
+      "routerctl-query": "nodes/query.js",
+      "routerctl-action": "nodes/action.js",
+      "routerctl-inventory": "nodes/inventory.js"
+    }
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test \"test/unit/*.test.js\"",
+    "test:contract": "node --test --test-concurrency=1 \"test/contract/*.test.js\"",
+    "test:docker": "bash test/docker/run.sh"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "node-red": "5.0.9",
+    "node-red-node-test-helper": "0.3.6"
+  }
+}

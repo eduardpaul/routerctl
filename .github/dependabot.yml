@@ -1,0 +1,25 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: {interval: weekly}
+  - package-ecosystem: gomod
+    directories: [/netkit, /asusrouter, /routerkit, /routerctl]
+    schedule: {interval: weekly}
+    groups:
+      go:
+        patterns: ["*"]
+  - package-ecosystem: npm
+    directory: /node-red
+    schedule: {interval: weekly}
+  - package-ecosystem: uv
+    directory: /parity
+    schedule: {interval: weekly}
+  # Python asusrouter bumps: each needs the Go port in the same PR
+  - package-ecosystem: gitsubmodule
+    directory: /
+    schedule: {interval: weekly}
+    labels: [parity]
+  - package-ecosystem: docker
+    directory: /
+    schedule: {interval: weekly}

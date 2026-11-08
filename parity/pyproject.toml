@@ -1,0 +1,19 @@
+# The Python side of the parity harness: the asusrouter library from the
+# pinned submodule (editable) plus ruff.
+#
+#   git submodule update --init
+#   uv sync --project parity
+[project]
+name = "routerctl-parity"
+version = "0"
+requires-python = ">=3.11"
+dependencies = ["asusrouter"]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+asusrouter = { path = "../third_party/asusrouter-py", editable = true }
+
+[dependency-groups]
+dev = ["ruff==0.17.3"]

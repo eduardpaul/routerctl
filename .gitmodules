@@ -1,0 +1,4 @@
+[submodule "third_party/asusrouter-py"]
+	path = third_party/asusrouter-py
+	url = https://github.com/eduardpaul/asusrouter.git
+	branch = dev
