@@ -20,7 +20,7 @@ Supported devices:
 - **Binary:** download it from
   [Releases](https://github.com/eduardpaul/routerctl/releases) (Linux
   amd64/arm64/armv7, macOS Intel/Apple Silicon, Windows amd64/arm64), or
-  build it with `make build` (Go 1.24+). The binaries are not signed:
+  build it with `make build` (Go 1.26+). The binaries are not signed:
   - **macOS:** if a browser download is blocked ("cannot be opened"), run
     `xattr -d com.apple.quarantine routerctl` once.
   - **Windows:** SmartScreen may warn on first start; choose **More info →

@@ -24,7 +24,7 @@ jobs:
       matrix:
         # The minimum of go.work, and the current release (what the
         # release binaries are built with)
-        go: ["1.24.x", "stable"]
+        go: ["1.26.x", "stable"]
     steps:
       - uses: actions/checkout@v7
 

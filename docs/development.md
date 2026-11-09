@@ -5,7 +5,7 @@
 ```sh
 git clone --recurse-submodules https://github.com/eduardpaul/routerctl
 cd routerctl
-make build test              # Go 1.24+; bin/routerctl
+make build test              # Go 1.26+; bin/routerctl
 ```
 
 You also need `uv` for the Python parity tools, and Node.js 18+ plus
