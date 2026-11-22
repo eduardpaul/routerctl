@@ -52,7 +52,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "node-red": "5.0.9",
+    "node-red": "5.0.10",
     "node-red-node-test-helper": "0.3.6"
   }
 }
